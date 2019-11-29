@@ -1,0 +1,145 @@
+service: npzr
+
+plugins:
+  - serverless-stack-output
+  - serverless-dynamodb-local
+  - serverless-appsync-plugin
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: java8
+  stage: '${opt:stage, ''dev''}'
+  region: eu-west-1
+  profile: npzr
+  cfLogs: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
+      Resource:
+        - { "Fn::GetAtt": ["GameDynamoDBTable", "Arn" ] }
+
+custom:
+  gameTableName: 'game-${self:provider.stage}'
+  userPoolName: 'npzrUserPool${self:provider.stage}'
+  accountId: #{AWS::AccountId}
+  appSync:
+    name: npzr
+    authenticationType: AMAZON_COGNITO_USER_POOLS
+    userPoolConfig:
+      defaultAction: ALLOW
+      userPoolId: { Ref: UserPool }
+    mappingTemplates:
+      - dataSource: gameLambdaDS
+        type: Mutation
+        field: createGame
+        request: 'createGameReq.vtl'
+        response: 'createGameRes.vtl'
+    dataSources:
+      - type: AWS_LAMBDA
+        name: gameLambdaDS
+        description: "Lambda datasource"
+        config:
+          lambdaFunctionArn: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-createGame"
+          serviceRoleArn: { "Fn::GetAtt": ["AppSyncServiceRole", "Arn" ] }
+  dynamodb:
+    stages:
+      - dev
+    start:
+      migrate: true
+      inMemory: true
+
+package:
+  artifact: build/libs/npzr-dev-all.jar
+
+functions:
+  createGame:
+    handler: com.pyruby.npzr.handlers.CreateGameHandler
+
+resources:
+  - Resources:
+      AppLogGroup:
+        Type: AWS::Logs::LogGroup
+        Properties:
+          RetentionInDays: "7"
+      AppSyncServiceRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+          RoleName: "AppSyncServiceRole"
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Principal:
+                  Service:
+                    - "appsync.amazonaws.com"
+                Action:
+                  - "sts:AssumeRole"
+          Policies:
+            - PolicyName: "Lambda-AppSyncServiceRole-Policy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Action:
+                      - "lambda:invokeFunction"
+                    Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-createGame"
+      GameDynamoDBTable:
+        Type: 'AWS::DynamoDB::Table'
+        Properties:
+          AttributeDefinitions:
+            - AttributeName: id
+              AttributeType: S
+            - AttributeName: player1
+              AttributeType: S
+            - AttributeName: player2
+              AttributeType: S
+          KeySchema:
+            - AttributeName: id
+              KeyType: HASH
+            - AttributeName: player1
+              KeyType: RANGE
+          LocalSecondaryIndexes:
+            - IndexName: secondary
+              KeySchema:
+                - AttributeName: id
+                  KeyType: HASH
+                - AttributeName: player2
+                  KeyType: RANGE
+              Projection:
+                ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+          TableName: Game-${self:provider.stage}
+      UserPool:
+        Type: "AWS::Cognito::UserPool"
+        Properties:
+          UserPoolName: ${self:custom.userPoolName}
+          AutoVerifiedAttributes:
+            - email
+          MfaConfiguration: "OFF"
+          Schema:
+            - Name: email
+              AttributeDataType: String
+              Mutable: true
+              Required: true
+            - Name: phone_number
+              AttributeDataType: String
+              Mutable: true
+              Required: true
+      # Creates a User Pool Client to be used by the identity pool
+      UserPoolClient:
+        Type: "AWS::Cognito::UserPoolClient"
+        Properties:
+          ClientName: ${self:custom.userPoolName}-client
+          GenerateSecret: false
+          UserPoolId:
+            Ref: UserPool

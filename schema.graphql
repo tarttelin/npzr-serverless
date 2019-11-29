@@ -1,0 +1,79 @@
+directive @aws_subscribe( mutations: [String!]!) on FIELD_DEFINITION
+
+type Mutation {
+    createGame(userId: ID!, opponent: PlayerType!): Game
+}
+
+type Query {
+    getGame(userId: ID!, gameId: ID!): Game
+}
+
+type Subscription {
+    createdGame: Game @aws_subscribe(mutations: ["createGame"])
+}
+
+type User {
+    id: ID!
+}
+
+enum PlayerType {
+    Player,
+    AI
+}
+
+enum BodyPartType {
+    Head,
+    Torso,
+    Legs,
+    Wild
+}
+
+enum CharacterType {
+    Ninja,
+    Pirate,
+    Zombie,
+    Robot,
+    Wild
+}
+
+enum PlayState {
+    Draw,
+    Play,
+    Move,
+    MoveWild,
+    Wait
+}
+
+type Game {
+    id: ID!
+    players: [Player!]!,
+    discardPile: [Card!]!
+}
+
+type Player {
+    playerType: PlayerType!
+    userId: String
+    hand: [Card!]!
+    stacks: [Stack!]!
+    completed: [CharacterType!]!
+    playState: PlayState!
+}
+
+type Card {
+    id: ID!
+    bodyPart: BodyPartType!
+    character: CharacterType!
+}
+
+type Stack {
+    id: ID!
+    head: [Card!]!
+    torso: [Card!]!
+    legs: [Card!]!
+}
+
+schema {
+    query: Query,
+    mutation: Mutation,
+    subscription: Subscription
+}
