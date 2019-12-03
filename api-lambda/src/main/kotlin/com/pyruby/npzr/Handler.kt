@@ -9,7 +9,7 @@ class Handler:RequestHandler<Map<String, Any>, ApiGatewayResponse> {
   override fun handleRequest(input:Map<String, Any>, context:Context?): ApiGatewayResponse {
     LOG.info("received: " + input.keys.toString())
 
-    val operation = input["operation"];
+    val operation = input["operation"]
 
     val result = when (operation) {
       "draw" -> draw(input)

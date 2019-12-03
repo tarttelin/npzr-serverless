@@ -1,0 +1,29 @@
+Resources:
+  GameDynamoDBTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: player1
+          AttributeType: S
+        - AttributeName: player2
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: player1
+          KeyType: RANGE
+      LocalSecondaryIndexes:
+        - IndexName: secondary
+          KeySchema:
+            - AttributeName: id
+              KeyType: HASH
+            - AttributeName: player2
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: Game-${self:provider.stage}

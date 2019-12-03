@@ -5,7 +5,7 @@ import kotlin.test.Test
 
 class HandlerTest {
 
-    private val handler = Handler();
+    private val handler = Handler()
 
     @Test
     fun `Handling request with invalid operation returns 400`() {

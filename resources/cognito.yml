@@ -1,0 +1,33 @@
+Resources:
+  UserPool:
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      UserPoolName: ${self:custom.userPoolName}
+      AutoVerifiedAttributes:
+        - email
+      MfaConfiguration: "OFF"
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+        - Name: phone_number
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+  # Creates a User Pool Client to be used by the identity pool
+  UserPoolClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      ClientName: ${self:custom.userPoolName}-client
+      GenerateSecret: false
+      UserPoolId:
+        Ref: UserPool
+
+Outputs:
+  PoolId:
+    Value:
+      Ref: UserPool
+  PoolClient:
+    Value:
+      Ref: UserPoolClient
