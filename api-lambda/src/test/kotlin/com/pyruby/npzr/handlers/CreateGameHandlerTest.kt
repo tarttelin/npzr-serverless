@@ -24,7 +24,7 @@ internal class CreateGameHandlerTest {
     }
 
     @Test
-    fun `Create game delegates to the repository and wraps the reply`() {
+    fun `Create game delegates to the repository`() {
         val createdGame = Game.createGame("bob", opponent = PlayerType.Player)
         every { repo.createGame("userId12") } returns createdGame
 

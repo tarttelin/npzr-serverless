@@ -7,7 +7,7 @@ const CreateGame = () => {
   return (
     <div>
         <button onClick={() => createGame({ variables: { userId: "chris", playerType: "Player" } })}>Create</button>
-        { data !== undefined && (<div>game created: {data.createGame.id}</div>)}
+        { data !== undefined && (<div id="createdResult">game created: {data.createGame.id}</div>)}
     </div>
 
   )
