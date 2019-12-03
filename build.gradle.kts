@@ -1,0 +1,21 @@
+plugins {
+    base
+}
+
+task("buildUi", Exec::class) {
+    dependsOn("build")
+    workingDir("./ui")
+    commandLine("npm", "run", "build")
+}
+
+task("deploy", Exec::class) {
+    dependsOn("buildUi")
+    commandLine("serverless", "deploy")
+}
+
+task("local", Exec::class) {
+    dependsOn("clean", "shadowJar")
+    tasks.findByName("build")?.mustRunAfter("clean")
+    environment("IS_LOCAL", "true")
+    commandLine("serverless", "invoke", "local", "-f", "createGame")
+}

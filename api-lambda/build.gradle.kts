@@ -54,18 +54,6 @@ tasks {
     }
 }
 
-task("deploy", Exec::class) {
-    dependsOn("build")
-    commandLine("serverless", "deploy")
-}
-
-task("local", Exec::class) {
-    dependsOn("clean", "shadowJar")
-    tasks.findByName("build")?.mustRunAfter("clean")
-    environment("IS_LOCAL", "true")
-    commandLine("serverless", "invoke", "local", "-f", "createGame")
-}
-
 tasks.test {
     useJUnitPlatform()
 }
