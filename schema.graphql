@@ -5,7 +5,7 @@ type Mutation {
 }
 
 type Query {
-    getGame(userId: ID!, gameId: ID!): Game
+    getGame(gameId: ID!): Game
 }
 
 type Subscription {

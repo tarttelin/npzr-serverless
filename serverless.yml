@@ -50,12 +50,24 @@ custom:
         field: createGame
         request: 'createGameReq.vtl'
         response: 'createGameRes.vtl'
+      - dataSource: GameDDS
+        type: Query
+        field: getGame
+        request: 'getGameReq.vtl'
+        response: 'getGameRes.vtl'
     dataSources:
       - type: AWS_LAMBDA
         name: gameLambdaDS
         description: "Lambda datasource"
         config:
           lambdaFunctionArn: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-createGame"
+          serviceRoleArn: { "Fn::GetAtt": ["AppSyncServiceRole", "Arn" ] }
+      - type: AMAZON_DYNAMODB
+        name: GameDDS
+        description: "DynamoDB datasource for Game table"
+        config:
+          tableName:
+            Ref: GameDynamoDBTable
           serviceRoleArn: { "Fn::GetAtt": ["AppSyncServiceRole", "Arn" ] }
   dynamodb:
     stages:
@@ -141,6 +153,19 @@ resources:
                     Action:
                       - "lambda:invokeFunction"
                     Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-createGame"
+            - PolicyName: "Dynamo-AppSyncServiceRole-Policy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Action:
+                      - "dynamodb:DeleteItem"
+                      - "dynamodb:GetItem"
+                      - "dynamodb:PutItem"
+                      - "dynamodb:Query"
+                      - "dynamodb:Scan"
+                      - "dynamodb:UpdateItem"
+                    Resource: { "Fn::GetAtt": ["GameDynamoDBTable", "Arn" ] }
       DnsRecord:
         Type: "AWS::Route53::RecordSet"
         Properties:
