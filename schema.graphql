@@ -6,6 +6,7 @@ type Mutation {
 
 type Query {
     getGame(gameId: ID!): Game
+    findGamesAwaitingSecondPlayer: GameConnection!
 }
 
 type Subscription {
@@ -70,6 +71,11 @@ type Stack {
     head: [Card!]!
     torso: [Card!]!
     legs: [Card!]!
+}
+
+type GameConnection {
+    items: [Game]
+    nextToken: String
 }
 
 input CreateGameInput {

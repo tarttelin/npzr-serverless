@@ -55,6 +55,11 @@ custom:
         field: getGame
         request: 'getGameReq.vtl'
         response: 'getGameRes.vtl'
+      - dataSource: GameDDS
+        type: Query
+        field: findGamesAwaitingSecondPlayer
+        request: 'findGamesAwaitingSecondPlayerReq.vtl'
+        response: 'findGamesAwaitingSecondPlayerRes.vtl'
     dataSources:
       - type: AWS_LAMBDA
         name: gameLambdaDS

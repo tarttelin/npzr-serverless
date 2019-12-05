@@ -5,5 +5,5 @@ configure({ adapter: new Adapter()});
 
 const wait = (time = 0) => new Promise(res => setTimeout(res, time));
 
-global.apolloCall = wrapperInstance => wait(200)
+global.apolloCall = (wrapperInstance, time = 200) => wait(time)
   .then(() => wrapperInstance.update());

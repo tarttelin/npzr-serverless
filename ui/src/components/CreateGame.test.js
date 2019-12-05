@@ -4,7 +4,7 @@ import { act } from 'react-dom/test-utils';
 import enzyme from 'enzyme';
 import { MockedProvider } from '@apollo/react-testing';
 import CreateGame from "./CreateGame";
-import { createGame } from "../graphql";
+import { CREATE_GAME } from "../graphql";
 
 describe('Create a new game', () => {
   it('calls the createGame mutation', async () => {
@@ -13,7 +13,7 @@ describe('Create a new game', () => {
     const mocks = [
       {
         request: {
-          query: createGame,
+          query: CREATE_GAME,
           variables: { userId: "chris", playerType: "Player" }
         },
         result() {
