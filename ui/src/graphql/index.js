@@ -4,6 +4,23 @@ export const CREATE_GAME = gql(`
   mutation($userId: String!, $playerType: PlayerType!) {
     createGame(input: { userId: $userId, playerType: $playerType }) {
       id
+      players {
+        playerType
+        userId
+        hand {
+          id
+          bodyPart
+          character
+          __typename
+        }
+        playState
+        __typename
+      }
+      discardPile {
+        id
+        __typename
+      }
+      __typename
     }
   }
 `);
@@ -51,3 +68,24 @@ export const GAMES_TO_JOIN = gql(`
     }
   }
 `);
+
+export const NEW_GAME_SUBSCRIPTION = gql`
+    subscription {
+        createdGame {
+            id
+            players {
+                playerType
+                userId
+                hand {
+                    id
+                    bodyPart
+                    character
+                }
+                playState
+            }
+            discardPile {
+                id
+            }
+        }
+    }
+`;
