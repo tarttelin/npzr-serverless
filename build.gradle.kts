@@ -3,13 +3,15 @@ plugins {
 }
 
 task("buildUi", Exec::class) {
-    dependsOn("build")
+    dependsOn("clean", "build")
+    tasks.findByName("build")?.mustRunAfter("clean")
     workingDir("./ui")
     commandLine("npm", "run", "build")
 }
 
 task("deploy", Exec::class) {
-    dependsOn("buildUi")
+    dependsOn("buildUi", ":api-lambda:shadowJar")
+    tasks.findByName(":api-lambda:shadowJar")?.mustRunAfter("buildUi")
     commandLine("serverless", "deploy")
 }
 

@@ -2,6 +2,7 @@ directive @aws_subscribe( mutations: [String!]!) on FIELD_DEFINITION
 
 type Mutation {
     createGame(input: CreateGameInput!): Game
+    joinGame(input: JoinGameInput!): Game
 }
 
 type Query {
@@ -79,8 +80,11 @@ type GameConnection {
 }
 
 input CreateGameInput {
-    userId: String!
-    playerType: PlayerType!
+    opponent: PlayerType!
+}
+
+input JoinGameInput {
+    gameId: ID!
 }
 
 schema {

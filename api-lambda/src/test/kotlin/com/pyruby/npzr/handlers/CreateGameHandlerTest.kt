@@ -26,9 +26,9 @@ internal class CreateGameHandlerTest {
     @Test
     fun `Create game delegates to the repository`() {
         val createdGame = Game.createGame("bob", opponent = PlayerType.Player)
-        every { repo.createGame("userId12") } returns createdGame
+        every { repo.createGame("userId12", PlayerType.Player) } returns createdGame
 
-        val game = handler.handleRequest(mapOf("args" to mapOf("userId" to "Some Key", "opponent" to "Player"), "identity" to "userId12"), context)
+        val game = handler.handleRequest(mapOf("args" to mapOf("input" to mapOf("opponent" to "Player")), "identity" to "userId12"), context)
         game.players[0].userId !! `should be equal to` "bob"
     }
 

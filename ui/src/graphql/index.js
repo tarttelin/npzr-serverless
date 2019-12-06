@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const CREATE_GAME = gql(`
-  mutation($userId: String!, $playerType: PlayerType!) {
-    createGame(input: { userId: $userId, playerType: $playerType }) {
+  mutation($opponent: PlayerType!) {
+    createGame(input: { opponent: $opponent }) {
       id
       players {
         playerType

@@ -6,7 +6,7 @@ const CreateGame = () => {
   const [createGame, { data }] = useMutation(CREATE_GAME);
   return (
     <div>
-        <button onClick={() => createGame({ variables: { userId: "chris", playerType: "Player" } })}>Create</button>
+        <button onClick={() => createGame({ variables: { opponent: "Player" } })}>Create</button>
         { data !== undefined && (<div id="createdResult">game created: {data.createGame.id}</div>)}
     </div>
 

@@ -14,7 +14,7 @@ describe('Create a new game', () => {
       {
         request: {
           query: CREATE_GAME,
-          variables: { userId: "chris", playerType: "Player" }
+          variables: { opponent: "Player" }
         },
         result() {
           mutationCalled = true;

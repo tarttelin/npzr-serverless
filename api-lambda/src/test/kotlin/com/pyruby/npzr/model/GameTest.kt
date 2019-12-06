@@ -1,6 +1,8 @@
 package com.pyruby.npzr.model
 
-import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.*
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.TestFactory
 import kotlin.test.Test
 
 
@@ -61,5 +63,43 @@ class GameTest {
             game.players[idx].stacks[0].torso.size `should be equal to` 0
             game.players[idx].stacks[0].legs.size `should be equal to` 0
         }
+    }
+
+    @TestFactory
+    fun `User can only join a valid game`() = listOf(
+            Game.createGame("bob", PlayerType.AI) to false,
+            Game.createGame("bob", PlayerType.Player).copy(players=listOf(Player("bob", PlayerType.Player), Player("bill", PlayerType.Player))) to false,
+            Game.createGame("bob", PlayerType.Player) to true
+        ).map { (input, expected) ->
+            DynamicTest.dynamicTest("Given game can be joined $expected") {
+                if (expected) {
+                    invoking { input.join("terry") } shouldNotThrow AnyException
+                } else {
+                    invoking { input.join("terry") } shouldThrow AnyException
+                }
+            }
+    }
+
+    @Test
+    fun `Cards are dealt to each player when someone joins a game`() {
+        val initialGame = Game.createGame("bob", PlayerType.Player)
+        val joinedGame = initialGame.join("bill")
+        joinedGame.deck.size `should equal` initialGame.deck.size - 10
+        joinedGame.players.forEach { player -> player.hand.size `should equal` 5 }
+    }
+
+    @Test
+    fun `Player 2 name is set when player joins the game`() {
+        val initialGame = Game.createGame("bob", PlayerType.Player)
+        val joinedGame = initialGame.join("bill")
+        joinedGame.player2 `should equal` "bill"
+    }
+
+    @Test
+    fun `Player 1 playState is set to Draw when player 2 joins the game`() {
+        val initialGame = Game.createGame("bob", PlayerType.Player)
+        val joinedGame = initialGame.join("bill")
+        joinedGame.players[0].playState `should equal` PlayState.Draw
+        joinedGame.players[1].playState `should equal` PlayState.Wait
     }
 }

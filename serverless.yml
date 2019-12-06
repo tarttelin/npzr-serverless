@@ -45,11 +45,16 @@ custom:
       defaultAction: ALLOW
       userPoolId: { Ref: UserPool }
     mappingTemplates:
-      - dataSource: gameLambdaDS
+      - dataSource: createGameLambdaDS
         type: Mutation
         field: createGame
         request: 'createGameReq.vtl'
         response: 'createGameRes.vtl'
+      - dataSource: joinGameLambdaDS
+        type: Mutation
+        field: joinGame
+        request: 'joinGameReq.vtl'
+        response: 'joinGameRes.vtl'
       - dataSource: GameDDS
         type: Query
         field: getGame
@@ -62,10 +67,16 @@ custom:
         response: 'findGamesAwaitingSecondPlayerRes.vtl'
     dataSources:
       - type: AWS_LAMBDA
-        name: gameLambdaDS
+        name: createGameLambdaDS
         description: "Lambda datasource"
         config:
           lambdaFunctionArn: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-createGame"
+          serviceRoleArn: { "Fn::GetAtt": ["AppSyncServiceRole", "Arn" ] }
+      - type: AWS_LAMBDA
+        name: joinGameLambdaDS
+        description: "Lambda datasource to join a game"
+        config:
+          lambdaFunctionArn: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-joinGame"
           serviceRoleArn: { "Fn::GetAtt": ["AppSyncServiceRole", "Arn" ] }
       - type: AMAZON_DYNAMODB
         name: GameDDS
@@ -104,11 +115,17 @@ custom:
     endpointType: 'regional'
 
 package:
-  artifact: api-lambda/build/libs/api-lambda-dev-all.jar
+  individually: true
 
 functions:
   createGame:
     handler: com.pyruby.npzr.handlers.CreateGameHandler
+    package:
+      artifact: api-lambda/build/libs/api-lambda-dev-all.jar
+  joinGame:
+    handler: com.pyruby.npzr.handlers.JoinGameHandler
+    package:
+      artifact: api-lambda/build/libs/api-lambda-dev-all.jar
 
 resources:
   - '${file(resources/cognito.yml)}'
@@ -150,7 +167,7 @@ resources:
                 Action:
                   - "sts:AssumeRole"
           Policies:
-            - PolicyName: "Lambda-AppSyncServiceRole-Policy"
+            - PolicyName: "Lambda-CreateGameServiceRole-Policy"
               PolicyDocument:
                 Version: "2012-10-17"
                 Statement:
@@ -158,6 +175,14 @@ resources:
                     Action:
                       - "lambda:invokeFunction"
                     Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-createGame"
+            - PolicyName: "Lambda-JoinGameServiceRole-Policy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Action:
+                      - "lambda:invokeFunction"
+                    Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-joinGame"
             - PolicyName: "Dynamo-AppSyncServiceRole-Policy"
               PolicyDocument:
                 Version: "2012-10-17"
