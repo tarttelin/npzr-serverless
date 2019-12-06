@@ -10,7 +10,6 @@ const JoinGame = () => {
     updateQuery: (prev, { subscriptionData }) => {
       if (!prev || !subscriptionData.data || !subscriptionData.data) return prev;
       const newGame = subscriptionData.data.createdGame;
-
       return Object.assign({}, prev, {
         findGamesAwaitingSecondPlayer: {
           items: [newGame, ...prev.findGamesAwaitingSecondPlayer.items.filter(game => game.id !== newGame.id)],

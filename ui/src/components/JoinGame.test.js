@@ -31,7 +31,7 @@ describe('Games available to join', () => {
       </MockedProvider>
     );
     await act(async () => {
-      await apolloCall(container, 100).then(() => {
+      await apolloCall(container, 10).then(() => {
         spy.mockReset();
         expect(container.find('.joinGame')).to.have.lengthOf(2);
       });
@@ -59,11 +59,87 @@ describe('Games available to join', () => {
       </MockedProvider>
     );
     await act(async () => {
-      await apolloCall(container, 100).then(() => {
+      await apolloCall(container, 10).then(() => {
         spy.mockReset();
         expect(container.find('.joinGame')).to.have.lengthOf(0);
         expect(container.find('div').text()).to.equal("No games to join");
       });
     });
+  });
+
+  it('Adds new games to the games to join', async () => {
+    const initialGames = { findGamesAwaitingSecondPlayer: { items:
+          [{ id: "abc123", players: [{ userId: "Jim", "playerType": "Player", "hand": [], "playState": "Wait" },{ userId: null, "playerType": "Player", "hand": [], "playState": "Wait" }], discardPile: [], "__typename": "Game" } ,
+            { id: "abc125", players: [{ userId: "Beam", "playerType": "Player", "hand": [], "playState": "Wait" },{ userId: null, "playerType": "Player", "hand": [], "playState": "Wait" }], discardPile: [], "__typename": "Game" } ]
+      } };
+    let mergedGames = { };
+    const spy = jest.spyOn(ObservableQuery.prototype, 'subscribeToMore').mockImplementation(({updateQuery}) => {
+      mergedGames = updateQuery(initialGames, {subscriptionData: { data: { createdGame:
+      { id: "abc127", players: [{ userId: "Henderson", "playerType": "Player", "hand": [], "playState": "Wait" },{ userId: null, "playerType": "Player", "hand": [], "playState": "Wait" }], discardPile: [], "__typename": "Game" }
+            }}});
+      return mergedGames;
+    });
+    const mocks = [
+      {
+        request: {
+          query: GAMES_TO_JOIN,
+          variables: { }
+        },
+        result() {
+          return { data: initialGames };
+        }
+      }
+    ];
+
+    const container = enzyme.mount(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <JoinGame/>
+      </MockedProvider>
+    );
+    await act(async () => {
+      await apolloCall(container, 10).then(() => {
+        spy.mockReset();
+        expect(mergedGames.findGamesAwaitingSecondPlayer.items.length).to.equal(3);
+      });
+    });
+
+  });
+
+  it('Ignores new games that have the same ID as known games', async () => {
+    const initialGames = { findGamesAwaitingSecondPlayer: { items:
+          [{ id: "abc123", players: [{ userId: "Jim", "playerType": "Player", "hand": [], "playState": "Wait" },{ userId: null, "playerType": "Player", "hand": [], "playState": "Wait" }], discardPile: [], "__typename": "Game" } ,
+            { id: "abc125", players: [{ userId: "Beam", "playerType": "Player", "hand": [], "playState": "Wait" },{ userId: null, "playerType": "Player", "hand": [], "playState": "Wait" }], discardPile: [], "__typename": "Game" } ]
+      } };
+    let mergedGames = { };
+    const spy = jest.spyOn(ObservableQuery.prototype, 'subscribeToMore').mockImplementation(({updateQuery}) => {
+      mergedGames = updateQuery(initialGames, {subscriptionData: { data: { createdGame:
+      { id: "abc125", players: [{ userId: "Henderson", "playerType": "Player", "hand": [], "playState": "Wait" },{ userId: null, "playerType": "Player", "hand": [], "playState": "Wait" }], discardPile: [], "__typename": "Game" }
+            }}});
+      return mergedGames;
+    });
+    const mocks = [
+      {
+        request: {
+          query: GAMES_TO_JOIN,
+          variables: { }
+        },
+        result() {
+          return { data: initialGames };
+        }
+      }
+    ];
+
+    const container = enzyme.mount(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <JoinGame/>
+      </MockedProvider>
+    );
+    await act(async () => {
+      await apolloCall(container, 10).then(() => {
+        spy.mockReset();
+        expect(mergedGames.findGamesAwaitingSecondPlayer.items.length).to.equal(2);
+      });
+    });
+
   });
 });
