@@ -1,11 +1,12 @@
 import React from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
+import { Auth } from 'aws-amplify';
 import {GAMES_TO_JOIN, NEW_GAME_SUBSCRIPTION, JOIN_GAME, JOINED_GAME_SUBSCRIPTION} from '../graphql';
 
 const JoinGame = ({ playGame }) => {
   const { subscribeToMore, loading, data } = useQuery(GAMES_TO_JOIN, { variables: {  } });
 
-  subscribeToJoinedGames(subscribeToMore);
+  subscribeToJoinedGames(subscribeToMore, playGame);
   subscribeToNewGames(subscribeToMore);
 
   if (loading) {
@@ -22,7 +23,7 @@ const JoinGame = ({ playGame }) => {
 };
 
 const ShowGame = ({game, playGame }) => {
-  const [joinGame, {  }] = useMutation(JOIN_GAME,
+  const [joinGame] = useMutation(JOIN_GAME,
     {
       variables: { gameId: game.id },
       onCompleted: ({ joinGame : jg }) => {
@@ -39,7 +40,7 @@ const subscribeToNewGames = (subscribeToMore) => {
     document: NEW_GAME_SUBSCRIPTION,
     variables: {},
     updateQuery: (prev, {subscriptionData}) => {
-      if (!prev || !subscriptionData.data || !subscriptionData.data) return prev;
+      if (!prev || !subscriptionData.data || !subscriptionData.data.createdGame) return prev;
       const newGame = subscriptionData.data.createdGame;
       return Object.assign({}, prev, {
         findGamesAwaitingSecondPlayer: {
@@ -51,19 +52,26 @@ const subscribeToNewGames = (subscribeToMore) => {
   });
 };
 
-const subscribeToJoinedGames = (subscribeToMore) => {
+const subscribeToJoinedGames = (subscribeToMore, playGame) => {
   subscribeToMore({
     document: JOINED_GAME_SUBSCRIPTION,
     variables: {},
-    updateQuery: (prev, {subscriptionData}) => {
+    updateQuery: async (prev, {subscriptionData}) => {
       if (!prev || !subscriptionData.data || !subscriptionData.data.joinedGame) return prev;
       const joinedGame = subscriptionData.data.joinedGame;
-      return Object.assign({}, prev, {
+
+      const filteredList =  Object.assign({}, prev, {
         findGamesAwaitingSecondPlayer: {
           items: [...prev.findGamesAwaitingSecondPlayer.items.filter(game => game.id !== joinedGame.id)],
           __typename: "GameConnection"
         }
       });
+      if (filteredList.findGamesAwaitingSecondPlayer.items.length < prev.findGamesAwaitingSecondPlayer.items.length) {
+        if (joinedGame.players[0].userId === (await Auth.currentUserInfo()).username) {
+          playGame(joinedGame);
+        }
+      }
+      return filteredList;
     }
   });
 };
