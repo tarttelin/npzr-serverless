@@ -27,7 +27,8 @@ enum BodyPartType {
     Head,
     Torso,
     Legs,
-    Wild
+    Wild,
+    Flipped
 }
 
 enum CharacterType {
@@ -35,7 +36,8 @@ enum CharacterType {
     Pirate,
     Zombie,
     Robot,
-    Wild
+    Wild,
+    Flipped
 }
 
 enum PlayState {
@@ -64,7 +66,7 @@ type Player {
 type Card {
     id: ID!
     bodyPart: BodyPartType!
-    character: CharacterType!
+    characterType: CharacterType!
 }
 
 type Stack {

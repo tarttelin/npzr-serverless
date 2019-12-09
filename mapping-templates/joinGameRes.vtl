@@ -1,1 +1,11 @@
-$util.toJson($context.result)
+#set($ctx.result.discardPile = $ctx.result.discard_pile)
+#set($ctx.result.discard_pile = [])
+#foreach($player in $ctx.result.players)
+    #if($ctx.identity.username != $player.userId)
+        #foreach($card in $player.hand)
+            #set($card.characterType = "Flipped")
+            #set($card.bodyPart = "Flipped")
+        #end
+    #end
+#end
+$utils.toJson($ctx.result)
