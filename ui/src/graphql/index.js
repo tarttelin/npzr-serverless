@@ -10,7 +10,32 @@ export const CREATE_GAME = gql(`
         hand {
           id
           bodyPart
-          character
+          characterType
+          __typename
+        }
+        playState
+        __typename
+      }
+      discardPile {
+        id
+        __typename
+      }
+      __typename
+    }
+  }
+`);
+
+export const JOIN_GAME = gql(`
+  mutation($gameId: ID!) {
+    joinGame(input: { gameId: $gameId }) {
+      id
+      players {
+        playerType
+        userId
+        hand {
+          id
+          bodyPart
+          characterType
           __typename
         }
         playState
@@ -35,7 +60,7 @@ export const GET_GAME = gql(`
         hand {
           id
           bodyPart
-          character
+          characterType
         }
         playState
       }
@@ -57,7 +82,7 @@ export const GAMES_TO_JOIN = gql(`
           hand {
             id
             bodyPart
-            character
+            characterType
           }
           playState
         }
@@ -79,7 +104,28 @@ export const NEW_GAME_SUBSCRIPTION = gql`
                 hand {
                     id
                     bodyPart
-                    character
+                    characterType
+                }
+                playState
+            }
+            discardPile {
+                id
+            }
+        }
+    }
+`;
+
+export const JOINED_GAME_SUBSCRIPTION = gql`
+    subscription {
+        joinedGame {
+            id
+            players {
+                playerType
+                userId
+                hand {
+                    id
+                    bodyPart
+                    characterType
                 }
                 playState
             }

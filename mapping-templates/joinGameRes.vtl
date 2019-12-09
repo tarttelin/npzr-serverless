@@ -1,5 +1,3 @@
-#set($ctx.result.discardPile = $ctx.result.discard_pile)
-#set($ctx.result.discard_pile = [])
 #foreach($player in $ctx.result.players)
     #if($ctx.identity.username != $player.userId)
         #foreach($card in $player.hand)
