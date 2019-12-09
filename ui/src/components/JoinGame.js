@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import {GAMES_TO_JOIN, NEW_GAME_SUBSCRIPTION, JOIN_GAME, JOINED_GAME_SUBSCRIPTION} from '../graphql';
 
-const JoinGame = () => {
+const JoinGame = ({ playGame }) => {
   const { subscribeToMore, loading, data } = useQuery(GAMES_TO_JOIN, { variables: {  } });
 
   subscribeToJoinedGames(subscribeToMore);
@@ -14,16 +14,24 @@ const JoinGame = () => {
     return (<div>Loaded but still not got data??</div>);
   } else if (data.findGamesAwaitingSecondPlayer && data.findGamesAwaitingSecondPlayer.items && data.findGamesAwaitingSecondPlayer.items.length > 0) {
     return (<div>
-      { data.findGamesAwaitingSecondPlayer.items.filter(game => game.players[1].playerType === "Player" && game.players[1].userId === null).map( game => <ShowGame key={game.id} game={game}/>) }
+      { data.findGamesAwaitingSecondPlayer.items.filter(game => game.players[1].playerType === "Player" && game.players[1].userId === null).map( game => <ShowGame key={game.id} game={game} playGame={playGame}/>) }
       </div>);
   } else {
     return (<div>No games to join</div>)
   }
 };
 
-const ShowGame = ({game}) => {
-  const [joinGame, {  }] = useMutation(JOIN_GAME, {variables: { gameId: game.id } });
-  return (<div className="joinGame">Join game: <a href="#" onClick={() => joinGame()}>{game.id} -  {game.players[0].userId}</a></div>)
+const ShowGame = ({game, playGame }) => {
+  const [joinGame, {  }] = useMutation(JOIN_GAME,
+    {
+      variables: { gameId: game.id },
+      onCompleted: ({ joinGame : jg }) => {
+        playGame(jg);
+      }
+    });
+  return (<div className="joinGame">Join game: <a href="#" onClick={() => {
+    joinGame();
+  }}>{game.id} -  {game.players[0].userId}</a></div>)
 };
 
 const subscribeToNewGames = (subscribeToMore) => {
