@@ -8,17 +8,17 @@ import com.pyruby.npzr.LoggerDelegate
 import com.pyruby.npzr.model.Game
 import com.pyruby.npzr.model.PlayerType
 
-class CreateGameHandler(val gameRepo: GameRepository = GameRepository.gameRepo): RequestHandler<Map<String, Any>, Game> {
+class CreateGameHandler(val gameRepo: GameRepository = GameRepository.gameRepo): RequestHandler<CreateGameRequest, Game> {
     private val logger by LoggerDelegate()
 
-    override fun handleRequest(input: Map<String, Any>?, context: Context): Game {
-        logger.debug("Create a new game")
-        logger.debug("input: " + ObjectMapper().writeValueAsString(input))
-        val args = input?.get("args") as Map<String, Map<String, String>>
-
-        val playerType = PlayerType.valueOf(args["input"]?.get("opponent")!!)
-        val game = gameRepo.createGame(input?.get("identity").toString(), playerType)
-
+    override fun handleRequest(req: CreateGameRequest, context: Context): Game {
+        logger.debug("request: " + ObjectMapper().writeValueAsString(req))
+        val game = gameRepo.createGame(req.identity, req.args.input.opponent)
         return game.copy(deck = emptyList())
     }
 }
+
+
+data class CreateGameRequest(var args: CreateGameInput = CreateGameInput(), var identity: String = "")
+data class CreateGameInput(var input: CreateGameArgs = CreateGameArgs())
+data class CreateGameArgs(var opponent: PlayerType = PlayerType.Player)

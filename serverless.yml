@@ -126,6 +126,10 @@ functions:
     handler: com.pyruby.npzr.handlers.JoinGameHandler
     package:
       artifact: api-lambda/build/libs/api-lambda-dev-all.jar
+  playGame:
+    handler: com.pyruby.npzr.handlers.PlayGameHandler
+    package:
+      artifact: api-lambda/build/libs/api-lambda-dev-all.jar
 
 resources:
   - '${file(resources/cognito.yml)}'

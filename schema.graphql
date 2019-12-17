@@ -3,6 +3,7 @@ directive @aws_subscribe( mutations: [String!]!) on FIELD_DEFINITION
 type Mutation {
     createGame(input: CreateGameInput!): Game
     joinGame(input: JoinGameInput!): Game
+    playCard(input: PlayCardInput!): Game
 }
 
 type Query {
@@ -13,6 +14,7 @@ type Query {
 type Subscription {
     createdGame: Game @aws_subscribe(mutations: ["createGame"])
     joinedGame: Game @aws_subscribe(mutations: ["joinGame"])
+    playedCard: Game @aws_subscribe(mutations: ["playCard"])
 }
 
 type User {
@@ -42,7 +44,6 @@ enum CharacterType {
 }
 
 enum PlayState {
-    Draw,
     Play,
     Move,
     MoveWild,
@@ -88,6 +89,13 @@ input CreateGameInput {
 
 input JoinGameInput {
     gameId: ID!
+}
+
+input PlayCardInput {
+    gameId: ID!
+    cardId: ID!
+    stackId: ID!
+    position: BodyPartType!
 }
 
 schema {

@@ -23,6 +23,7 @@ const JoinGame = ({ playGame }) => {
 };
 
 const ShowGame = ({game, playGame }) => {
+  console.log("game " + game.id);
   const [joinGame] = useMutation(JOIN_GAME,
     {
       variables: { gameId: game.id },

@@ -28,7 +28,7 @@ class JoinGameHandlerTest {
         every { repo.findGame("gameId12") } returns existing
         every { repo.update(capture(slot)) } answers { slot.captured }
 
-        val game = handler.handleRequest(mapOf("args" to mapOf("input" to mapOf("gameId" to "gameId12")), "identity" to "userId12"), context)
+        val game = handler.handleRequest(JoinGameRequest(args = JoinGameInput(JoinGameArgs("gameId12")), identity = "userId12"), context)
         game.players[1].userId !! `should be equal to` "userId12"
 
         verify { repo.update(game) }

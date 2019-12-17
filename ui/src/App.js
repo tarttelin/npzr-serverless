@@ -4,12 +4,13 @@ import './App.css';
 import CreateGame from "./components/CreateGame";
 import GetGame from "./components/GetGame";
 import JoinGame from "./components/JoinGame";
+import PlayGame from "./components/PlayGame";
 
 function App() {
   const [ game, setGame ] = useState(undefined);
   return (
     <div className="App">
-      { game && (<div>Play the game ... {game.id} with {game.players[1].userId}</div>) }
+      { game && (<PlayGame joinedGame={game}/>) }
       { !game &&
       (<>
         <CreateGame/>

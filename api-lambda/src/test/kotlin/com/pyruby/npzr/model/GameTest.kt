@@ -1,5 +1,6 @@
 package com.pyruby.npzr.model
 
+import com.pyruby.npzr.PlayException
 import org.amshove.kluent.*
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
@@ -84,8 +85,8 @@ class GameTest {
     fun `Cards are dealt to each player when someone joins a game`() {
         val initialGame = Game.createGame("bob", PlayerType.Player)
         val joinedGame = initialGame.join("bill")
-        joinedGame.deck.size `should equal` initialGame.deck.size - 10
-        joinedGame.players.forEach { player -> player.hand.size `should equal` 5 }
+        joinedGame.deck.size `should equal` initialGame.deck.size - 11
+        joinedGame.players.map { player -> player.hand.size }.sum() `should equal` 11
     }
 
     @Test
@@ -96,10 +97,105 @@ class GameTest {
     }
 
     @Test
-    fun `Player 1 playState is set to Draw when player 2 joins the game`() {
+    fun `One of the players playState is set to Draw when player 2 joins the game`() {
         val initialGame = Game.createGame("bob", PlayerType.Player)
         val joinedGame = initialGame.join("bill")
-        joinedGame.players[0].playState `should equal` PlayState.Draw
-        joinedGame.players[1].playState `should equal` PlayState.Wait
+        joinedGame.players.filter{ p -> p.playState == PlayState.Play }.count() `should equal` 1
+        joinedGame.players.filter{ p -> p.playState == PlayState.Wait }.count() `should equal` 1
+    }
+
+    @Test
+    fun `A player can play a card from their hand onto a valid stack position`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        activePlayer `should not be` null
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should not equal` activePlayer.userId
+        val originalPlayer = updatedGame.players.find { p -> p.userId == activePlayer.userId }!!
+        originalPlayer.stacks[0].head[0] `should equal` cardToPlay
+        originalPlayer.hand[0] `should not equal` cardToPlay
+        originalPlayer.completed `should equal` emptyList()
+        originalPlayer.stacks.size `should equal` 2
+        originalPlayer.hand.size `should equal` 5
+        originalPlayer.playState `should equal` PlayState.Wait
+    }
+
+    @Test
+    fun `A player cannot play a card from their hand onto an invalid stack position`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        activePlayer `should not be` null
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        invoking { initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Legs) } `should throw` PlayException::class
+    }
+
+    @Test
+    fun `A player cannot play when it is not their turn`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        val opponent = initialGame.players.find { it.userId != activePlayer.userId }!!
+        val cardToPlay = opponent?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        invoking { initialGame.playCard(opponent.userId!!, cardToPlay.id!!, opponent.stacks[0].id, BodyPart.Head) } `should throw` PlayException::class
+    }
+
+    @Test
+    fun `A player cannot play a card that is not in their hand`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        val cardToPlay = Card("unmatchedId", BodyPart.Head, CharacterType.Ninja)
+        invoking { initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head) } `should throw` PlayException::class
+    }
+
+    @Test
+    fun `A player cannot play a card on a non-existent stack`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        val cardToPlay = activePlayer.hand[0]
+        invoking { initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, "unmatchedId", BodyPart.Head) } `should throw` PlayException::class
+    }
+
+    @Test
+    fun `A player can play a card from their hand onto a valid stack position on their opponent's stack`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        val opponent = initialGame.players.find { it.userId != activePlayer.userId }!!
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, opponent.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should not equal` activePlayer.userId
+        val originalPlayer = updatedGame.activePlayer()!!
+        originalPlayer.stacks[0].head[0] `should equal` cardToPlay
+        originalPlayer.completed `should equal` emptyList()
+        originalPlayer.stacks.size `should equal` 2
+        originalPlayer.hand.size `should equal` 6
+        originalPlayer.playState `should equal` PlayState.Play
+    }
+
+    @Test
+    fun `Each player has one empty stack available`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+        val originalPlayer = updatedGame.players.find { p -> p.userId == activePlayer.userId }!!
+        originalPlayer.stacks.size `should equal` 2
+        updatedGame.activePlayer()!!.stacks.size `should equal` 1
     }
 }
