@@ -6,7 +6,7 @@ task("buildUi", Exec::class) {
     dependsOn("clean", "build")
     tasks.findByName("build")?.mustRunAfter("clean")
     workingDir("./ui")
-    commandLine("npm", "run", "build")
+    commandLine("yarn", "run", "build")
 }
 
 task("deploy", Exec::class) {

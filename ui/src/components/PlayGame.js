@@ -9,7 +9,7 @@ const PlayGame = ({joinedGame}) => {
     if (!playerName) {
       getUsername();
     }
-  }, []);
+  }, [playerName]);
   const getUsername = async () => {
     let name = (await Auth.currentUserInfo()).username;
     setPlayerName(name);
@@ -25,13 +25,6 @@ const PlayGame = ({joinedGame}) => {
 const opponent = (playerName, game) => {
   if (playerName && game) {
     return game.players.filter( p => p.userId !== playerName)[0];
-  }
-  return "Loading"
-};
-
-const player = (playerName, game) => {
-  if (playerName && game) {
-    return game.players.filter( p => p.userId === playerName)[0];
   }
   return "Loading"
 }

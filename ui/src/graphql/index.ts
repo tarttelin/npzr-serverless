@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-export const CREATE_GAME = gql(`
+export const CREATE_GAME = gql`
   mutation($opponent: PlayerType!) {
     createGame(input: { opponent: $opponent }) {
       id
@@ -23,9 +23,9 @@ export const CREATE_GAME = gql(`
       __typename
     }
   }
-`);
+`;
 
-export const JOIN_GAME = gql(`
+export const JOIN_GAME = gql`
   mutation($gameId: ID!) {
     joinGame(input: { gameId: $gameId }) {
       id
@@ -48,9 +48,9 @@ export const JOIN_GAME = gql(`
       __typename
     }
   }
-`);
+`;
 
-export const GET_GAME = gql(`
+export const GET_GAME = gql`
   query($gameId: ID!) {
     getGame(gameId: $gameId) {
       id
@@ -69,9 +69,9 @@ export const GET_GAME = gql(`
       }
     }
   }
-`);
+`;
 
-export const GAMES_TO_JOIN = gql(`
+export const GAMES_TO_JOIN = gql`
   query {
     findGamesAwaitingSecondPlayer {
       items {
@@ -92,7 +92,7 @@ export const GAMES_TO_JOIN = gql(`
       }
     }
   }
-`);
+`;
 
 export const NEW_GAME_SUBSCRIPTION = gql`
     subscription {

@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, FunctionComponent } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 import { GET_GAME } from '../graphql';
 
-const GameSearch = ({ gameId }) => {
+
+type GameSearchProps = {
+    gameId: string
+}
+
+const GameSearch: FunctionComponent<GameSearchProps> = ({ gameId }) => {
     const { loading, data } = useQuery(GET_GAME, { variables: { gameId: gameId } });
     if (loading) {
       return (<div>Loading ...</div>);
@@ -16,7 +21,7 @@ const GameSearch = ({ gameId }) => {
 };
 
 const GetGame = () => {
-  const [ id, setId ] = useState(undefined);
+  const [ id, setId ] = useState<string>('');
   return (
     <div>
       <input type="text" name="gameId" onChange={ event => setId(event.target.value) }/>

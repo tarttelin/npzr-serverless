@@ -16,8 +16,10 @@ Amplify.configure({
   }
 });
 
+const authType: "AMAZON_COGNITO_USER_POOLS" = "AMAZON_COGNITO_USER_POOLS"
+
 const authConfig = {
-  type: config.authMode,
+  type: authType,
   jwtToken: async () =>
     (await Auth.currentSession()).getAccessToken().getJwtToken()
 };

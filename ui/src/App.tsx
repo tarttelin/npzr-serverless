@@ -5,9 +5,10 @@ import CreateGame from "./components/CreateGame";
 import GetGame from "./components/GetGame";
 import JoinGame from "./components/JoinGame";
 import PlayGame from "./components/PlayGame";
+import {Game} from "./graphql/model";
 
-function App() {
-  const [ game, setGame ] = useState(undefined);
+const App: React.FC = () => {
+  const [ game, setGame ] = useState<Game>();
   return (
     <div className="App">
       { game && (<PlayGame joinedGame={game}/>) }
@@ -20,6 +21,6 @@ function App() {
       }
     </div>
   );
-}
+};
 
 export default withAuthenticator(App);
