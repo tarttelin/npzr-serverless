@@ -21,7 +21,7 @@ const GameSearch: FunctionComponent<GameSearchProps> = ({ gameId }) => {
 };
 
 const GetGame = () => {
-  const [ id, setId ] = useState<string>('');
+  const [ id, setId ] = useState<string>();
   return (
     <div>
       <input type="text" name="gameId" onChange={ event => setId(event.target.value) }/>

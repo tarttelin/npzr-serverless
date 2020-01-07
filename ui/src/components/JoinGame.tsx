@@ -1,13 +1,13 @@
 import React, { FunctionComponent } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import {SubscribeToMoreOptions} from 'apollo-client';
-import { Auth } from 'aws-amplify';
 import {GAMES_TO_JOIN, NEW_GAME_SUBSCRIPTION, JOIN_GAME, JOINED_GAME_SUBSCRIPTION} from '../graphql';
 import {Game} from "../graphql/model";
 import {OperationVariables} from "apollo-client/core/types";
 
 interface JoinGameProps {
   playGame(game: Game): void;
+  playerName: string;
 }
 
 interface GameResults {
@@ -21,10 +21,10 @@ interface JoinedGameData {
   joinedGame: Game;
 }
 
-const JoinGame: FunctionComponent<JoinGameProps> = ({ playGame }) => {
+const JoinGame: FunctionComponent<JoinGameProps> = ({ playGame, playerName }) => {
   const { subscribeToMore, loading, data } = useQuery<JoinGameData>(GAMES_TO_JOIN);
 
-  subscribeToJoinedGames(subscribeToMore, playGame);
+  subscribeToJoinedGames(playerName, subscribeToMore, playGame);
   subscribeToNewGames(subscribeToMore);
 
   if (loading) {
@@ -35,7 +35,7 @@ const JoinGame: FunctionComponent<JoinGameProps> = ({ playGame }) => {
     return (<div>
       { data.findGamesAwaitingSecondPlayer.items.filter(game => {
         return game.players[1].playerType === 'Player' && game.players[1].userId === null;
-      }).map( game => <ShowGame key={game.id} game={game} playGame={playGame}/>) }
+      }).map( game => <ShowGame key={game.id} game={game} playGame={playGame} playerName={playerName}/>) }
       </div>);
   } else {
     return (<div>No games to join</div>)
@@ -43,19 +43,15 @@ const JoinGame: FunctionComponent<JoinGameProps> = ({ playGame }) => {
 };
 
 interface ShowGameProps extends JoinGameProps {
-  game: Game
+  game: Game;
+  playGame: (game: Game) => void;
 }
-
-type SubscriptionDataType = {
-  data: CreatedGameType;
-};
 
 type CreatedGameType = {
   createdGame: Game;
 }
 
 const ShowGame: FunctionComponent<ShowGameProps> = ({game, playGame }) => {
-  console.log("game " + game.id);
   const [joinGame] = useMutation(JOIN_GAME,
     {
       variables: { gameId: game.id },
@@ -73,7 +69,9 @@ const subscribeToNewGames = (subscribeToMore: (fetchMoreOptions: SubscribeToMore
     document: NEW_GAME_SUBSCRIPTION,
     variables: {},
     updateQuery: (prev: JoinGameData, { subscriptionData }) => {
-      if (!prev || !subscriptionData.data || !subscriptionData.data.createdGame) return prev;
+      if (!prev || !subscriptionData.data || !subscriptionData.data.createdGame) {
+        return prev;
+      }
       const newGame = subscriptionData.data.createdGame;
       return Object.assign({}, prev, {
         findGamesAwaitingSecondPlayer: {
@@ -85,8 +83,7 @@ const subscribeToNewGames = (subscribeToMore: (fetchMoreOptions: SubscribeToMore
   });
 };
 
-const subscribeToJoinedGames = async (subscribeToMore: (fetchMoreOptions: SubscribeToMoreOptions<JoinGameData, OperationVariables, JoinedGameData>) => void, playGame: (game: Game)=> void) => {
-  const loggedInUser = (await Auth.currentUserInfo()).username
+const subscribeToJoinedGames = (loggedInUser: string, subscribeToMore: (fetchMoreOptions: SubscribeToMoreOptions<JoinGameData, OperationVariables, JoinedGameData>) => void, playGame: (game: Game)=> void) => {
   subscribeToMore({
     document: JOINED_GAME_SUBSCRIPTION,
     variables: {},
