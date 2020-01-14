@@ -7,7 +7,7 @@ import {OperationVariables} from "apollo-client/core/types";
 
 interface JoinGameProps {
   playGame(game: Game): void;
-  playerName: string;
+  playerName?: string;
 }
 
 interface GameResults {
@@ -24,7 +24,7 @@ interface JoinedGameData {
 const JoinGame: FunctionComponent<JoinGameProps> = ({ playGame, playerName }) => {
   const { subscribeToMore, loading, data } = useQuery<JoinGameData>(GAMES_TO_JOIN);
 
-  subscribeToJoinedGames(playerName, subscribeToMore, playGame);
+  subscribeToJoinedGames(playerName!, subscribeToMore, playGame);
   subscribeToNewGames(subscribeToMore);
 
   if (loading) {

@@ -14,7 +14,9 @@ type Query {
 type Subscription {
     createdGame: Game @aws_subscribe(mutations: ["createGame"])
     joinedGame: Game @aws_subscribe(mutations: ["joinGame"])
-    playedCard: Game @aws_subscribe(mutations: ["playCard"])
+    playedCard(
+        id: ID
+    ): Game @aws_subscribe(mutations: ["playCard"])
 }
 
 type User {

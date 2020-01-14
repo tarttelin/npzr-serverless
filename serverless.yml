@@ -55,6 +55,11 @@ custom:
         field: joinGame
         request: 'joinGameReq.vtl'
         response: 'joinGameRes.vtl'
+      - dataSource: playCardLambdaDS
+        type: Mutation
+        field: playCard
+        request: 'playCardReq.vtl'
+        response: 'playCardRes.vtl'
       - dataSource: GameDDS
         type: Query
         field: getGame
@@ -77,6 +82,12 @@ custom:
         description: "Lambda datasource to join a game"
         config:
           lambdaFunctionArn: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-joinGame"
+          serviceRoleArn: { "Fn::GetAtt": ["AppSyncServiceRole", "Arn" ] }
+      - type: AWS_LAMBDA
+        name: playCardLambdaDS
+        description: "Lambda datasource to play a card"
+        config:
+          lambdaFunctionArn: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-playCard"
           serviceRoleArn: { "Fn::GetAtt": ["AppSyncServiceRole", "Arn" ] }
       - type: AMAZON_DYNAMODB
         name: GameDDS
@@ -126,7 +137,7 @@ functions:
     handler: com.pyruby.npzr.handlers.JoinGameHandler
     package:
       artifact: api-lambda/build/libs/api-lambda-dev-all.jar
-  playGame:
+  playCard:
     handler: com.pyruby.npzr.handlers.PlayGameHandler
     package:
       artifact: api-lambda/build/libs/api-lambda-dev-all.jar
@@ -187,6 +198,14 @@ resources:
                     Action:
                       - "lambda:invokeFunction"
                     Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-joinGame"
+            - PolicyName: "Lambda-PlayCardServiceRole-Policy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Action:
+                      - "lambda:invokeFunction"
+                    Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-playCard"
             - PolicyName: "Dynamo-AppSyncServiceRole-Policy"
               PolicyDocument:
                 Version: "2012-10-17"

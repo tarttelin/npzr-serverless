@@ -16,32 +16,14 @@ export interface Player {
 
 export type PlayerType = "AI" | "Player";
 
-export enum PlayState {
-    Play,
-    Move,
-    MoveWild,
-    Wait
-}
+export type PlayState = "Play" | "Move" | "MoveThenPlay" | "Wait";
 
-export enum BodyPartType {
-    Head,
-    Torso,
-    Legs,
-    Wild,
-    Flipped
-}
+export type BodyPartType = "Head" | "Torso" | "Legs" | "Wild";
 
-export enum CharacterType {
-    Ninja,
-    Pirate,
-    Zombie,
-    Robot,
-    Wild,
-    Flipped
-}
+export type CharacterType = "Ninja" | "Pirate" | "Zombie" | "Robot" | "Wild";
 
 export interface Card {
-    id: String;
+    id: string;
     bodyPart: BodyPartType;
     characterType: CharacterType;
 }

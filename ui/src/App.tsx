@@ -27,7 +27,7 @@ const App: React.FC = () => {
       (<>
         <CreateGame/>
         <GetGame/>
-        <JoinGame playGame={setGame}/>
+        <JoinGame playGame={setGame} playerName={playerName}/>
       </>)
       }
     </div>
