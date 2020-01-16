@@ -26,7 +26,8 @@ class StackSlotView extends me.DroptargetEntity {
         })
     }
 
-    update() {
+    update(dt: number) {
+        super.update(dt);
         return true;
     }
 
@@ -41,6 +42,7 @@ class StackSlotView extends me.DroptargetEntity {
     }
 
     moveTo(x: number) {
+        console.log("move stack slot");
         this.x = x;
         let y = this.pos.y;
         let tween = new me.Tween(this.pos).to({x: x, y: y }, 500);

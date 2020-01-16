@@ -10,7 +10,6 @@ import StackSlot from "../viewmodels/stack-slot";
 import {ExecutionResult} from "apollo-link";
 import {MutationFunctionOptions} from "@apollo/react-common";
 import {PlayState} from "../viewmodels/player";
-import Hand from "../viewmodels/hand";
 import {observe} from "rxjs-observe";
 
 interface JoinedGameProps {
@@ -94,6 +93,7 @@ const PlayGame: FunctionComponent<JoinedGameProps> = ({joinedGame, playerName}) 
       if (!prev || !subscriptionData.data || !subscriptionData.data.playedCard) {
         return prev;
       }
+      console.log("other player just played a card");
       return Object.assign({}, prev, {
         getGame: subscriptionData.data.playedCard
       });
@@ -103,16 +103,13 @@ const PlayGame: FunctionComponent<JoinedGameProps> = ({joinedGame, playerName}) 
   useEffect(() => {
     if (!gameView) {
       setGameView(new GameContainer(new GameViewModel(playCardCallback(playCard, joinedGame.id))));
-      setTimeout(() => {
-        if (data?.getGame) {
-          console.log("update model");
-          updateModel(gameView!.game, data.getGame, playerName!);
-          gameView!.loaded()
-        }
-      }, 5000);
+      document.getElementById("screen")!.focus();
+      if (data?.getGame) {
+        updateModel(gameView!.game, data.getGame, playerName!);
+        gameView!.loaded()
+      }
     }
     else if (data?.getGame) {
-      console.log("update model");
       updateModel(gameView!.game, data.getGame, playerName!);
     }
   }, [data]);

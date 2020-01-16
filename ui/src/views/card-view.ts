@@ -23,6 +23,8 @@ class CardView extends me.DraggableEntity {
         return 50;
     }
 
+    updateWhenPaused = true;
+
     dragStart(e: any) {
         if (this.card.isMovable) {
             super.dragStart(e);

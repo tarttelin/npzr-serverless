@@ -56,6 +56,7 @@ const ShowGame: FunctionComponent<ShowGameProps> = ({game, playGame }) => {
     {
       variables: { gameId: game.id },
       onCompleted: ({ joinGame : jg }) => {
+        console.log("clicked join");
         playGame(jg);
       }
     });
@@ -97,9 +98,12 @@ const subscribeToJoinedGames = (loggedInUser: string, subscribeToMore: (fetchMor
           __typename: "GameConnection"
         }
       });
+      console.log("game joined");
       if (filteredList.findGamesAwaitingSecondPlayer.items.length < prev.findGamesAwaitingSecondPlayer!!.items.length) {
         if (joinedGame.players[0].userId === loggedInUser) {
           playGame(joinedGame);
+        } else {
+          console.log(`Didn't start game. Player ${joinedGame.players[0].userId} not logged in user ${loggedInUser}`);
         }
       }
       return filteredList;
