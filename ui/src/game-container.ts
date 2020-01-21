@@ -41,6 +41,7 @@ class GameContainer {
 
         // Start the game.
         me.state.change(me.state.PLAY);
+        me.sys.pauseOnBlur = false;
     }
 
     static boot(game: Game) {

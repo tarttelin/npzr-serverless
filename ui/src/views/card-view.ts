@@ -7,7 +7,7 @@ class CardView extends me.DraggableEntity {
 
     constructor(x: number, y: number, card: Card, faceDown: boolean) {
         super(x, y, { image: 'cardFront', width: 100, height: 50, framewidth: 400, frameheight: 200 });
-        let animation = this.defineAnimation(card, false);
+        let animation = this.defineAnimation(card, faceDown);
         this.renderable.scale(CardView.width() / 400.0, CardView.height() / 200.0);
         this.renderable.resize(CardView.width(), CardView.height());
         this.renderable.setCurrentAnimation(animation);
@@ -83,6 +83,10 @@ class CardView extends me.DraggableEntity {
         }
         this.currentTween = new me.Tween(this.pos).to({x: x, y: y}, 500).onComplete(() => { this.currentTween = undefined; });
         this.currentTween.start();
+    }
+
+    flipCard() {
+        this.renderable.setCurrentAnimation(this.defineAnimation(this.card, false));
     }
 }
 

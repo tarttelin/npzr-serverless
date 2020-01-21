@@ -25,7 +25,6 @@ class HandView {
     }
 
     resizeHand() {
-        console.log("resize hand");
         me.timer.setTimeout((() => {
             let startX = this.x - this.hand.cards.length * ((CardView.width() + 5) / 2);
             this.hand.cards.forEach(((card: Card, idx: number) => {

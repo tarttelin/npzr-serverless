@@ -15,8 +15,8 @@ const CreateGame = () => {
   const [createGame, { data }] = useMutation<CreateGameData, CreateGameVars>(CREATE_GAME);
   return (
     <div>
-        <button onClick={() => createGame({ variables: { opponent: 'Player' } })}>Create</button>
-        { data !== undefined && (<div id="createdResult">game created: {data.createGame.id}</div>)}
+        { data !== undefined ? (<div id="createdResult">game created: {data.createGame.id}</div>) :
+            (<button onClick={() => createGame({ variables: { opponent: 'Player' } })}>Create</button>)}
     </div>
 
   )

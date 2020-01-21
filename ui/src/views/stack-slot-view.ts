@@ -39,10 +39,10 @@ class StackSlotView extends me.DroptargetEntity {
     moveCardToSlot(card: Card) {
         let view = this.cardManager.lookup(card);
         view.moveTo(this.x, this.pos.y + 2);
+        view.flipCard();
     }
 
     moveTo(x: number) {
-        console.log("move stack slot");
         this.x = x;
         let y = this.pos.y;
         let tween = new me.Tween(this.pos).to({x: x, y: y }, 500);

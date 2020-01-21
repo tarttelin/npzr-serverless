@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import {useMutation, useQuery} from '@apollo/react-hooks';
+import {useMutation, useQuery, useSubscription} from '@apollo/react-hooks';
 import {GET_GAME, PLAY_CARD, PLAYED_CARD_SUBSCRIPTION} from '../graphql';
 import {Card, Game, Player} from "../graphql/model";
 import CardViewModel, {BodyPart, Character} from "../viewmodels/card";
@@ -25,6 +25,10 @@ interface PlayCardData {
   playCard: Game;
 }
 
+interface PlayedCardData {
+  playedCard: Game;
+}
+
 interface PlayCardVars {
   gameId: string,
   cardId: string,
@@ -39,6 +43,7 @@ function playCardCallback(mutation: (options?: MutationFunctionOptions<PlayCardD
 }
 
 function updateModel(game: GameViewModel, gameState: Game, playerName: string) {
+  console.log("update model");
   const playerState = gameState.players.find(p => p.userId === playerName)!;
   const opponentState = gameState.players.find(p => p.userId !== playerName)!;
   function syncPlayer(playerState: Player, player: PlayerViewModel) {
@@ -85,44 +90,40 @@ function convert(card: Card) {
 const PlayGame: FunctionComponent<JoinedGameProps> = ({joinedGame, playerName}) => {
   const [gameView, setGameView] = useState<GameContainer>();
   const [playCard] = useMutation<PlayCardData, PlayCardVars>(PLAY_CARD);
-  const { loading, data, subscribeToMore } = useQuery(GET_GAME, { variables: { gameId: joinedGame.id}});
-  subscribeToMore({
-    document: PLAYED_CARD_SUBSCRIPTION,
-    variables: { gameId: joinedGame.id },
-    updateQuery: (prev: GetGameData, { subscriptionData }) => {
-      if (!prev || !subscriptionData.data || !subscriptionData.data.playedCard) {
-        return prev;
-      }
-      console.log("other player just played a card");
-      return Object.assign({}, prev, {
-        getGame: subscriptionData.data.playedCard
+  const { data: cardPlayedData } = useSubscription<PlayedCardData>(PLAYED_CARD_SUBSCRIPTION,
+      {
+        variables: { gameId: joinedGame.id }
       });
-    }
-  });
+  const { loading: initialLoad, data: getGameData } = useQuery<GetGameData>(GET_GAME, { variables: { gameId: joinedGame.id}});
+
+  let gameState = cardPlayedData?.playedCard || getGameData?.getGame;
 
   useEffect(() => {
-    if (!gameView) {
-      setGameView(new GameContainer(new GameViewModel(playCardCallback(playCard, joinedGame.id))));
+    if (!gameView && gameState) {
+      let gv = new GameContainer(new GameViewModel(playCardCallback(playCard, joinedGame.id)));
+      setGameView(gv);
       document.getElementById("screen")!.focus();
-      if (data?.getGame) {
-        updateModel(gameView!.game, data.getGame, playerName!);
-        gameView!.loaded()
-      }
+      updateModel(gv!.game, gameState, playerName!);
     }
-    else if (data?.getGame) {
-      updateModel(gameView!.game, data.getGame, playerName!);
+    else if (gameView && gameState) {
+      updateModel(gameView!.game, gameState, playerName!);
     }
-  }, [data]);
+  }, [gameState, cardPlayedData, getGameData]);
 
-  if (loading || !data || !playerName ) {
+  if (initialLoad || !gameState || !playerName) {
     return (<div>loading</div>)
   } else {
-    return (<div id="screen">Play game {data.getGame.id} with {opponent(playerName, data.getGame).userId}</div>)
+
+    return (<div>{opponent(playerName, gameState).playState !== "Wait" ? "Opponent's turn" : "Your turn to " + currentPlayer(playerName, gameState).playState}</div>)
   }
 };
 
 const opponent = (playerName: string, game: Game): Player => {
   return game.players.filter( p => p.userId !== playerName)[0];
+};
+
+const currentPlayer = (playerName: string, game: Game): Player => {
+  return game.players.filter(p => p.userId === playerName)[0];
 };
 
 export default PlayGame;
