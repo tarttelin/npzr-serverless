@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import { withAuthenticator } from "aws-amplify-react";
 import './App.css';
 import CreateGame from "./components/CreateGame";
-import GetGame from "./components/GetGame";
 import JoinGame from "./components/JoinGame";
 import {Auth} from "aws-amplify";
 

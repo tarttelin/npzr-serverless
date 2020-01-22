@@ -30,8 +30,8 @@ class HandView {
             this.hand.cards.forEach(((card: Card, idx: number) => {
                 let view = this.cardManager.lookup(card);
                 view.moveTo(startX + (idx * (CardView.width() + 10)), this.y);
-            }).bind(this));
-        }).bind(this), 100);
+            }));
+        }), 100);
     }
 }
 

@@ -31,10 +31,8 @@ const JoinGame: FunctionComponent<JoinGameProps> = ({ playerName }) => {
       { onSubscriptionData: ({subscriptionData}) => {
         if (subscriptionData?.data?.joinedGame && games.find( game => game.id === subscriptionData.data?.joinedGame.id)) {
           let gameJoined = subscriptionData.data.joinedGame;
-          console.log("a game has been joined");
           setGames(games.filter(g => g.id !== gameJoined.id));
           if (gameJoined.players.find(p => p.userId === playerName)) {
-            console.log("Play the game " + gameJoined.id);
             playGame(gameJoined);
           }
         }
@@ -42,17 +40,14 @@ const JoinGame: FunctionComponent<JoinGameProps> = ({ playerName }) => {
   useSubscription<CreatedGameType>(NEW_GAME_SUBSCRIPTION, {
     onSubscriptionData: ({subscriptionData}) => {
       if (subscriptionData.data?.createdGame && !games.find(game => game.id === subscriptionData.data?.createdGame.id)) {
-        console.log("a game has been created");
         setGames([subscriptionData.data.createdGame, ...games]);
       }
     }
   });
 
   if (loading || !gameList) {
-    console.log("loading");
     return (<div>Loading ...</div>);
   } else if (games.length === 0 && gameList.findGamesAwaitingSecondPlayer && gameList.findGamesAwaitingSecondPlayer.items && gameList.findGamesAwaitingSecondPlayer.items.length > 0) {
-    console.log("games loaded");
     setGames(gameList.findGamesAwaitingSecondPlayer.items);
   }
 

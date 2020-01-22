@@ -26,7 +26,7 @@ class PlayerView {
     }
 
     addStack(stack: Stack) {
-        let [x, y] = [me.game.viewport.width/2, this.player.isOpponent && me.game.viewport.height / 2 - 20 - 3 * CardView.height() || me.game.viewport.height / 2 + 20 ];
+        let [x, y] = [me.game.viewport.width/2, this.player.isOpponent ? me.game.viewport.height / 2 - 20 - 3 * CardView.height() : me.game.viewport.height / 2 + 20 ];
         let head = new StackSlotView(x, y, this._game, stack.head, this._cardManager);
         let torso = new StackSlotView(x, y + CardView.height(), this._game, stack.torso, this._cardManager);
         let legs = new StackSlotView(x, y + CardView.height() * 2, this._game, stack.legs, this._cardManager);
@@ -41,13 +41,13 @@ class PlayerView {
         this.stackViews.forEach(((stack: StackSlotView[], idx: number) => {
             let startX = me.game.viewport.width / 2 - this.stackViews.length * (CardView.width() / 2 + 5);
             stack.map(slot => slot.moveTo(startX + 10 + (idx * (CardView.width() + 10))));
-        }).bind(this));
+        }));
     }
 
     showHand(hand: Hand) {
         this.handView = new HandView(
             me.game.viewport.width / 2,
-            this.player.isOpponent && 5 || me.game.viewport.height - CardView.height() - 10,
+            this.player.isOpponent ? 5 : me.game.viewport.height - CardView.height() - 10,
             hand, this._cardManager);
     }
 }
