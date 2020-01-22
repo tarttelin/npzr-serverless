@@ -33,33 +33,70 @@ data class Game(
     fun playCard(username: String, cardId: String, stackId: String, position: BodyPart): Game {
         val player = activePlayer() ?: throw PlayException("No active player")
         if (player.userId != username) throw PlayException("It is not your play phase")
-        val cardToPlay = activePlayer()?.hand?.find { card -> card.id == cardId } ?:
+        val cardToPlay = if (player.playState == PlayState.Play) {
+            activePlayer()?.hand?.find { card -> card.id == cardId } ?:
             throw PlayException("Card not in your hand")
+        } else {
+            players.flatMap { it.stacks }
+                    .flatMap { listOf(it.head.firstOrNull(), it.torso.firstOrNull(), it.legs.firstOrNull())}
+                    .firstOrNull { it?.id == cardId } ?:
+            throw PlayException("Cannot locate card on top of a stack")
+        }
         val targetStack = players.flatMap { it.stacks }.find { it.id == stackId } ?: throw PlayException("Unknown stack")
-        val (updatedStack, characterType) = targetStack.play(cardToPlay, position)
-        val updatePlayer = player.copy(
+        val updatedStack = targetStack.play(cardToPlay, position)
+
+        val (scoredPlayer, discards) = PlayerScore.completeStacks(player.copy(
                 hand=player.hand.filter{ it.id != cardId },
-                stacks = updateStacks(player.stacks, updatedStack),
-                playState = PlayState.Wait
-        )
+                stacks = updateStacks(player.stacks, updatedStack, cardToPlay)
+        ))
         val opponent = players.find { it.userId != username }!!
-        val updateOpponent = opponent.copy(
-                hand=opponent.hand.plus(deck.first()),
-                stacks = updateStacks(opponent.stacks, updatedStack),
-                playState = PlayState.Play)
+        val (scoredOpponent, opponentDiscards) = PlayerScore.completeStacks(opponent.copy(
+                stacks = updateStacks(opponent.stacks, updatedStack, cardToPlay)))
+
+        val hasCompletedStack = !discards.plus(opponentDiscards).isEmpty()
+        val playerStateUpdate = updatePlayerState(scoredPlayer, hasCompletedStack, cardToPlay.isWild())
+        val opponentStateUpdate = updatePlayerState(scoredOpponent, hasCompletedStack, playerStateUpdate.playState != PlayState.Wait)
 
         return this.copy(
-                deck = deck.subList(1, deck.size),
-                players = players.map { p -> if (p.userId == username) updatePlayer else updateOpponent }
+                deck = if (opponentStateUpdate.playState == PlayState.Play) deck.subList(1, deck.size) else deck,
+                discardPile = discardPile.plus(discards).plus(opponentDiscards),
+                players = players.map { p -> if (p.userId == username) playerStateUpdate else opponentStateUpdate }
         )
     }
 
-    private fun updateStacks(stacks: List<Stack>, updatedStack: Stack): List<Stack> {
+    private fun updatePlayerState(player: Player, hasCompletedStack: Boolean, wild: Boolean): Player {
+        return when(player.playState) {
+            PlayState.Wait -> if (hasCompletedStack || wild) player else player.copy(playState = PlayState.Play, hand = player.hand.plus(deck.first()))
+            PlayState.Move -> if (hasCompletedStack) player else player.copy(playState = PlayState.Wait)
+            PlayState.MoveWild -> if (hasCompletedStack) player else player.copy(playState = PlayState.Play)
+            PlayState.Play ->
+                if (hasCompletedStack && wild)
+                    player.copy(playState = PlayState.MoveWild)
+                else if (hasCompletedStack)
+                    player.copy(playState = PlayState.Move)
+                else if (wild)
+                    player
+                else
+                    player.copy(playState = PlayState.Wait)
+        }
+    }
+
+    private fun updateStacks(stacks: List<Stack>, updatedStack: Stack, playedCard: Card): List<Stack> {
         val replacedStacks = stacks.map { stack -> if (stack.id == updatedStack.id) updatedStack else stack }
-        return if (replacedStacks.any { s -> s.head.isEmpty() && s.torso.isEmpty() && s.legs.isEmpty() }) {
+        val updatedStacks = if (replacedStacks.any { s -> s.head.isEmpty() && s.torso.isEmpty() && s.legs.isEmpty() }) {
             replacedStacks
         } else {
             replacedStacks.plus(Stack())
+        }
+        return updatedStacks.map {
+            if (it.id == updatedStack.id) {
+                it
+            } else {
+                it.copy(
+                    head = it.head.filter { c -> c.id != playedCard.id },
+                    torso = it.torso.filter { c -> c.id != playedCard.id },
+                    legs = it.legs.filter { c -> c.id != playedCard.id }
+            )}
         }
     }
 

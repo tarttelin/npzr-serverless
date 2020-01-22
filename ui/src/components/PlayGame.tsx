@@ -115,9 +115,9 @@ const PlayGame: FunctionComponent<JoinedGameProps> = ({joinedGame, playerName}) 
     if (initialLoad || !gameState || !playerName) {
         return (<div>loading</div>)
     } else {
-
         return (
-            <div>{opponent(playerName, gameState).playState !== "Wait" ? "Opponent's turn" : "Your turn to " + currentPlayer(playerName, gameState).playState}</div>)
+            <div>{opponent(playerName, gameState).playState !== "Wait" ? "Opponent's turn " : "Your turn to " + currentPlayer(playerName, gameState).playState  + " "}
+            [ score {currentPlayer(playerName, gameState).completed.map(c => (<span>{c} </span>))}]</div>)
     }
 };
 

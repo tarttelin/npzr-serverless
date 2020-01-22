@@ -84,6 +84,7 @@ export const PLAY_CARD = gql`
                     characterType
                     __typename
                 }
+                completed
                 stacks {
                     id
                     head {
@@ -130,6 +131,7 @@ export const GET_GAME = gql`
                 characterType
                 __typename
             }
+            completed
             stacks {
                 id
                 head {
@@ -241,6 +243,7 @@ export const PLAYED_CARD_SUBSCRIPTION = gql`
                     characterType
                     __typename
                 }
+                completed
                 stacks {
                     id
                     head {

@@ -198,4 +198,84 @@ class GameTest {
         originalPlayer.stacks.size `should equal` 2
         updatedGame.activePlayer()!!.stacks.size `should equal` 1
     }
+
+    @Test
+    fun `When a player completes a stack they their play state changes to move`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        activePlayer `should not be` null
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        val stack = activePlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
+            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs);
+        val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(stacks = listOf(stack)), initialGame.players.find { p -> p.userId != activePlayer.userId }!!))
+        val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
+        val originalPlayer = updatedGame.players.find { p -> p.userId == activePlayer.userId }!!
+        originalPlayer.playState `should equal` PlayState.Move
+    }
+
+    @Test
+    fun `When a player completes their own stack they score the completed character`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        activePlayer `should not be` null
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        val stack = activePlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
+            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs);
+        val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(stacks = listOf(stack)), initialGame.players.find { p -> p.userId != activePlayer.userId }!!))
+        val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
+        val originalPlayer = updatedGame.players.find { p -> p.userId == activePlayer.userId }!!
+        originalPlayer.stacks[0].head.size `should equal` 0
+        updatedGame.discardPile.size `should equal` 3
+        originalPlayer.completed `should equal` listOf(CharacterType.Ninja.name)
+        originalPlayer.stacks.size `should equal` 2
+        originalPlayer.playState `should equal` PlayState.Move
+    }
+
+    @Test
+    fun `When a player completes a stack the cards on the stack are moved to the discard pile`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        activePlayer `should not be` null
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        val stack = activePlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
+            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs)
+                .play(Card("334", BodyPart.Head, CharacterType.Pirate), BodyPart.Head);
+        val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(stacks = listOf(stack)), initialGame.players.find { p -> p.userId != activePlayer.userId }!!))
+        val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
+        val originalPlayer = updatedGame.players.find { p -> p.userId == activePlayer.userId }!!
+        originalPlayer.stacks[0].head.size `should equal` 0
+        updatedGame.discardPile.size `should equal` 4
+    }
+
+    @Test
+    fun `When a player completes an opponents stack the opponent scores the completed character`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        val opponentPlayer = initialGame.players.find { it.userId != activePlayer.userId }!!
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        val stack = opponentPlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
+            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs)
+                .play(Card("334", BodyPart.Head, CharacterType.Pirate), BodyPart.Head);
+        val expectedGame = initialGame.copy(players = listOf(opponentPlayer.copy(stacks = listOf(stack)), activePlayer))
+        val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, opponentPlayer.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
+        val originalOpponent = updatedGame.players.find { p -> p.userId != activePlayer.userId }!!
+        originalOpponent.stacks[0].head.size `should equal` 0
+        originalOpponent.completed `should equal` listOf(CharacterType.Ninja.name)
+    }
 }

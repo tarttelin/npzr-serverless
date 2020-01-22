@@ -11,13 +11,26 @@ data class Stack(
         var torso: List<Card> = emptyList(),
         var legs: List<Card> = emptyList()
 ) {
-    fun play(card: Card, position: BodyPart): Pair<Stack, CharacterType?> {
+    fun completedCharacter(): CharacterType? {
+        val topHead = head.firstOrNull()
+        val topTorso = torso.firstOrNull()
+        val topLegs = legs.firstOrNull()
+        if (topHead != null && topTorso != null && topLegs != null) {
+            val nonWildCards = listOf(topHead, topTorso, topLegs).filter { it.characterType != CharacterType.Wild }
+            val sameCharacterType = nonWildCards.all { it.characterType == nonWildCards[0].characterType }
+            if (sameCharacterType) {
+                return nonWildCards[0].characterType
+            }
+        }
+        return null
+    }
+
+    fun play(card: Card, position: BodyPart): Stack {
         return when (position) {
-            BodyPart.Head -> if (card.bodyPart != BodyPart.Head && card.bodyPart != BodyPart.Wild) throw PlayException("Invalid position") else Pair(copy(head = head.plus(card)), null)
-            BodyPart.Torso -> if (card.bodyPart != BodyPart.Torso && card.bodyPart != BodyPart.Wild) throw PlayException("Invalid position") else Pair(copy(torso = torso.plus(card)), null)
-            BodyPart.Legs -> if (card.bodyPart != BodyPart.Legs && card.bodyPart != BodyPart.Wild) throw PlayException("Invalid position") else Pair(copy(legs = legs.plus(card)), null)
+            BodyPart.Head -> if (card.bodyPart != BodyPart.Head && card.bodyPart != BodyPart.Wild) throw PlayException("Invalid position") else copy(head = listOf(card).plus(head))
+            BodyPart.Torso -> if (card.bodyPart != BodyPart.Torso && card.bodyPart != BodyPart.Wild) throw PlayException("Invalid position") else copy(torso = listOf(card).plus(torso))
+            BodyPart.Legs -> if (card.bodyPart != BodyPart.Legs && card.bodyPart != BodyPart.Wild) throw PlayException("Invalid position") else copy(legs = listOf(card).plus(legs))
             else -> throw PlayException("Invalid position")
         }
     }
-
 }
