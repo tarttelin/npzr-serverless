@@ -38,6 +38,7 @@ class StackSlotView extends me.DroptargetEntity {
 
     moveCardToSlot(card: Card) {
         let view = this.cardManager.lookup(card);
+        me.game.world.moveToTop(view);
         view.moveTo(this.x, this.pos.y + 2);
         view.flipCard();
     }
