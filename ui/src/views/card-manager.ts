@@ -19,16 +19,17 @@ class CardManager {
     registerCard(card: Card, faceDown: boolean) {
         if (this.cards.has(card)) {
             console.log("Not adding card to world");
-            return;
+            return this.cards.get(card)!;
         }
         let view = new CardView(20, 60, card, faceDown);
         this.cards.set(card, view);
         console.log("Adding card to world");
         me.game.world.addChild(view, this.cards.size);
+        return view;
     }
 
     lookup(card: Card) {
-        return this.cards.get(card)!;
+        return this.cards.get(card) || this.registerCard(card, false);
     }
 }
 

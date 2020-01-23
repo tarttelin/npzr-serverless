@@ -14,11 +14,13 @@ class PlayerView {
     stackViews: StackSlotView[][];
     private readonly _game: Game;
     private readonly _cardManager: CardManager;
+    private _resize: boolean;
 
     constructor(player: Player, game: Game, cardManager: CardManager) {
         this.player = player;
         this._game = game;
         this._cardManager = cardManager;
+        this._resize = false;
         this.stackViews = [];
         this.showHand(player.hand);
         player.stacks.forEach(stack => this.addStack(stack));
@@ -26,7 +28,8 @@ class PlayerView {
     }
 
     addStack(stack: Stack) {
-        let [x, y] = [me.game.viewport.width/2, this.player.isOpponent ? me.game.viewport.height / 2 - 20 - 3 * CardView.height() : me.game.viewport.height / 2 + 20 ];
+        let x = me.game.viewport.width / 2 - this.player.stacks.length * (CardView.width() / 2 + 5)  + 10 + (this.stackViews.length * (CardView.width() + 10));
+        let y = this.player.isOpponent ? me.game.viewport.height / 2 - 20 - 3 * CardView.height() : me.game.viewport.height / 2 + 20;
         let head = new StackSlotView(x, y, this._game, stack.head, this._cardManager);
         let torso = new StackSlotView(x, y + CardView.height(), this._game, stack.torso, this._cardManager);
         let legs = new StackSlotView(x, y + CardView.height() * 2, this._game, stack.legs, this._cardManager);
@@ -34,12 +37,19 @@ class PlayerView {
         me.game.world.addChild(head, this.stackViews.length);
         me.game.world.addChild(torso, this.stackViews.length);
         me.game.world.addChild(legs, this.stackViews.length);
-        this.resizeStacks();
+        if (!this._resize) {
+            this._resize = true;
+            me.timer.setTimeout(() => {
+                this.resizeStacks();
+                this._resize = false;
+            }, 100);
+        }
+
     }
 
     resizeStacks() {
         this.stackViews.forEach(((stack: StackSlotView[], idx: number) => {
-            let startX = me.game.viewport.width / 2 - this.stackViews.length * (CardView.width() / 2 + 5);
+            let startX = me.game.viewport.width / 2 - this.player.stacks.length * (CardView.width() / 2 + 5);
             stack.map(slot => slot.moveTo(startX + 10 + (idx * (CardView.width() + 10))));
         }));
     }

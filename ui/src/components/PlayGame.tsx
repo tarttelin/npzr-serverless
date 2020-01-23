@@ -1,4 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
+import { RouteComponentProps } from "react-router";
 import {useMutation, useQuery, useSubscription} from '@apollo/react-hooks';
 import {GET_GAME, PLAY_CARD, PLAYED_CARD_SUBSCRIPTION} from '../graphql';
 import {Card, Game, Player} from "../graphql/model";
@@ -12,8 +13,9 @@ import {MutationFunctionOptions} from "@apollo/react-common";
 import {PlayState} from "../viewmodels/player";
 import {observe} from "rxjs-observe";
 
-interface JoinedGameProps {
-    joinedGame: Game;
+type GameIdType = { id: string };
+
+interface JoinedGameProps extends RouteComponentProps<GameIdType> {
     playerName?: string;
 }
 
@@ -38,14 +40,19 @@ interface PlayCardVars {
 
 function playCardCallback(mutation: (options?: MutationFunctionOptions<PlayCardData, PlayCardVars>) => Promise<ExecutionResult<PlayCardData>>, gameId: string) {
     return (card: CardViewModel, slot: StackSlot) => {
-        mutation({variables: {gameId, cardId: card.id, position: BodyPart[slot.position], stackId: slot.parent.id}});
+        let parent = card.parent;
+        mutation({variables: {gameId, cardId: card.id, position: BodyPart[slot.position], stackId: slot.parent.id}}).catch(() => {
+            parent?.addCard(card);
+        });
     };
 }
 
 function updateModel(game: GameViewModel, gameState: Game, playerName: string) {
     console.log("update model");
-    const playerState = gameState.players.find(p => p.userId === playerName)!;
-    const opponentState = gameState.players.find(p => p.userId !== playerName)!;
+    const playerState = gameState.players.find(p => p.userId === playerName) || gameState.players[0];
+    const opponentState = gameState.players.find(p => p.userId === playerName) ?
+        gameState.players.find(p => p.userId !== playerName)! :
+        gameState.players[1];
 
     function syncPlayer(playerState: Player, player: PlayerViewModel) {
         playerState.hand.filter(c => !player.hand.cards.map(card => card.id).includes(c.id))
@@ -90,21 +97,23 @@ function convert(card: Card) {
     return proxy;
 }
 
-const PlayGame: FunctionComponent<JoinedGameProps> = ({joinedGame, playerName}) => {
+const PlayGame: FunctionComponent<JoinedGameProps> = ({match, playerName}) => {
     const [gameView, setGameView] = useState<GameContainer>();
-    const [playCard] = useMutation<PlayCardData, PlayCardVars>(PLAY_CARD);
+    const [playCard, { error: mutationError }] = useMutation<PlayCardData, PlayCardVars>(PLAY_CARD);
     const {data: cardPlayedData} = useSubscription<PlayedCardData>(PLAYED_CARD_SUBSCRIPTION,
         {
-            variables: {gameId: joinedGame.id}
+            variables: {gameId: match.params.id}
         });
-    const {loading: initialLoad, data: getGameData} = useQuery<GetGameData>(GET_GAME, {variables: {gameId: joinedGame.id}});
+    const {loading: initialLoad, data: getGameData} = useQuery<GetGameData>(GET_GAME, {variables: {gameId: match.params.id}});
 
     let gameState = cardPlayedData?.playedCard || getGameData?.getGame;
 
     useEffect(() => {
-        let gv = new GameContainer(new GameViewModel(playCardCallback(playCard, joinedGame.id)));
-        setGameView(gv);
-        document.getElementById("screen")!.focus();
+        let gv = new GameContainer(new GameViewModel(playCardCallback(playCard, match.params.id)));
+        setTimeout(() => {
+            setGameView(gv);
+        }, 500);
+
     }, [])
     useEffect(() => {
         if (gameView?.game && gameState && playerName) {
@@ -112,21 +121,33 @@ const PlayGame: FunctionComponent<JoinedGameProps> = ({joinedGame, playerName}) 
         }
     }, [gameView, gameState, playerName]);
 
-    if (initialLoad || !gameState || !playerName) {
-        return (<div>loading</div>)
-    } else {
-        return (
-            <div>{opponent(playerName, gameState).playState !== "Wait" ? "Opponent's turn " : "Your turn to " + currentPlayer(playerName, gameState).playState  + " "}
-            [ score {currentPlayer(playerName, gameState).completed.map(c => (<span>{c} </span>))}]</div>)
-    }
+    return (
+        <div>
+            { (initialLoad || !gameState || !playerName) ? (<div>Loading</div>) : (
+                <div>{opponent(playerName, gameState).playState !== "Wait" ? "Opponent's turn " : "Your turn to " + currentPlayer(playerName, gameState).playState  + " "}
+                    [ score {currentPlayer(playerName, gameState).completed.map(c => (<span>{c} </span>))}]
+                    { mutationError ? <span>{mutationError?.message }</span> : <span>no error</span>}
+                </div>
+            )}
+            <div id="screen"/>
+        </div>
+    );
 };
 
 const opponent = (playerName: string, game: Game): Player => {
-    return game.players.filter(p => p.userId !== playerName)[0];
+    let player = game.players.find(p => p.userId === playerName);
+    if (player) {
+        return game.players.filter(p => p.userId !== playerName)[0];
+    }
+    return game.players[0];
 };
 
 const currentPlayer = (playerName: string, game: Game): Player => {
-    return game.players.filter(p => p.userId === playerName)[0];
+    let player = game.players.find(p => p.userId === playerName);
+    if (player) {
+        return player;
+    }
+    return game.players[1];
 };
 
 export default PlayGame;

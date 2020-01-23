@@ -56,7 +56,9 @@ class StackSlotView extends me.DroptargetEntity {
 
     drop(e: any) {
         try {
+            if (e.card.parent === this.game.opponent.hand) return;
             this.game.playCard(e.card, this.stackSlot);
+            this.stackSlot.addCard(e.card)
         } catch (err) {
             return;
         }

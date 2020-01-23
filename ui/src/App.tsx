@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import { withAuthenticator } from "aws-amplify-react";
 import './App.css';
-import CreateGame from "./components/CreateGame";
-import JoinGame from "./components/JoinGame";
+import { Route, BrowserRouter as Router } from 'react-router-dom';
 import {Auth} from "aws-amplify";
+import PlayGame from "./components/PlayGame";
+import Home from "./components/Home";
 
 const App: React.FC = () => {
   const [playerName, setPlayerName] = useState<string>();
@@ -17,11 +18,12 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="App">
-      <CreateGame/>
-      {/*<GetGame/>*/}
-      <JoinGame playerName={playerName}/>
-    </div>
+      <Router>
+        <div className="app">
+          <Route exact path="/" render={(props) => <Home playerName={playerName} {...props}/> } />
+          <Route exact path="/game/:id" render={(props) => <PlayGame playerName={playerName} {...props}/> } />
+        </div>
+      </Router>
   );
 };
 

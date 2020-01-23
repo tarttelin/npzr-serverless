@@ -3,6 +3,7 @@ import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks';
 import {GAMES_TO_JOIN, NEW_GAME_SUBSCRIPTION, JOIN_GAME, JOINED_GAME_SUBSCRIPTION} from '../graphql';
 import {Game} from "../graphql/model";
 import PlayGame from "./PlayGame";
+import { Redirect } from 'react-router-dom';
 
 interface JoinGameProps {
   playerName?: string;
@@ -52,7 +53,7 @@ const JoinGame: FunctionComponent<JoinGameProps> = ({ playerName }) => {
   }
 
   if (currentGame) {
-    return (<PlayGame playerName={playerName} joinedGame={currentGame}/>)
+    return (<Redirect to={`/game/${currentGame.id}`}/>)
   } else {
     return <ShowGames games={games} playerName={playerName}/>
   }
@@ -68,7 +69,7 @@ const ShowGames: FunctionComponent<ShowGameProps> = ({games, playerName }) => {
   return (
     <div>
       { games.filter( g => g.players[0].userId !== playerName).map(game => {
-        return (<div className="joinGame">Join game: <button onClick={() => {
+        return (<div className="joinGame" key={game.id}>Join game: <button onClick={() => {
           console.log("join game button clicked");
           joinGame({
             variables: { gameId: game.id }

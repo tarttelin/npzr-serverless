@@ -64,6 +64,8 @@ export const JOIN_GAME = gql`
       }
       discardPile {
         id
+        bodyPart
+        characterType
         __typename
       }
       __typename
@@ -111,6 +113,8 @@ export const PLAY_CARD = gql`
             }
             discardPile {
                 id
+                bodyPart
+                characterType
                 __typename
             }
             __typename
@@ -158,6 +162,8 @@ export const GET_GAME = gql`
         }
         discardPile {
             id
+            bodyPart
+            characterType
             __typename
         }
         __typename
@@ -270,6 +276,8 @@ export const PLAYED_CARD_SUBSCRIPTION = gql`
             }
             discardPile {
                 id
+                bodyPart
+                characterType
                 __typename
             }
             __typename
