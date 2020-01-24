@@ -2,8 +2,8 @@ import React, {FunctionComponent, useState} from 'react';
 import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks';
 import {GAMES_TO_JOIN, NEW_GAME_SUBSCRIPTION, JOIN_GAME, JOINED_GAME_SUBSCRIPTION} from '../graphql';
 import {Game} from "../graphql/model";
-import PlayGame from "./PlayGame";
 import { Redirect } from 'react-router-dom';
+import {Button} from "@material-ui/core";
 
 interface JoinGameProps {
   playerName?: string;
@@ -69,15 +69,13 @@ const ShowGames: FunctionComponent<ShowGameProps> = ({games, playerName }) => {
   return (
     <div>
       { games.filter( g => g.players[0].userId !== playerName).map(game => {
-        return (<div className="joinGame" key={game.id}>Join game: <button onClick={() => {
-          console.log("join game button clicked");
+        return (<div className="joinGame" key={game.id}>Join game: <Button variant="contained" onClick={() => {
           joinGame({
             variables: { gameId: game.id }
-
           });
-        }}>{game.id} -  {game.players[0].userId}</button></div>)
+        }}>{game.id} -  {game.players[0].userId}</Button></div>)
       })}
     </div>);
-}
+};
 
 export default JoinGame;

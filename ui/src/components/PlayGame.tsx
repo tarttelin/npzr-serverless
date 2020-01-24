@@ -118,8 +118,7 @@ const PlayGame: FunctionComponent<JoinedGameProps> = ({match, playerName}) => {
         setTimeout(() => {
             setGameView(gv);
         }, 500);
-
-    }, [])
+    }, []);
     useEffect(() => {
         if (gameView?.game && gameState && playerName) {
             updateModel(gameView!.game, gameState!, playerName!);

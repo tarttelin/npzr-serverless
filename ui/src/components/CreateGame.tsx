@@ -2,6 +2,7 @@ import React from 'react';
 import {useMutation} from '@apollo/react-hooks';
 import {CREATE_GAME} from '../graphql';
 import {Game} from "../graphql/model";
+import {Button} from "@material-ui/core";
 
 interface CreateGameVars {
     opponent: string;
@@ -16,7 +17,7 @@ const CreateGame = () => {
   return (
     <div>
         { data !== undefined ? (<div id="createdResult">game created: {data.createGame.id}</div>) :
-            (<button onClick={() => createGame({ variables: { opponent: 'Player' } })}>Create</button>)}
+            (<Button variant="contained" color="primary" onClick={() => createGame({ variables: { opponent: 'Player' } })}>Create</Button>)}
     </div>
 
   )
