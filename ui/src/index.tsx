@@ -1,41 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Amplify, { Auth } from "aws-amplify";
 import { ApolloProvider } from "react-apollo";
-import AWSAppSyncClient from "aws-appsync";
 import './index.css';
+import authClient from './auth';
 import App from './App';
-import config from './config';
 import * as serviceWorker from './serviceWorker';
 
-Amplify.configure({
-  Auth: {
-    region: config.region,
-    userPoolId: config.UserPoolId,
-    userPoolWebClientId: config.ClientId
-  }
-});
-
-const authType: "AMAZON_COGNITO_USER_POOLS" = "AMAZON_COGNITO_USER_POOLS"
-
-const authConfig = {
-  type: authType,
-  jwtToken: async () =>
-    (await Auth.currentSession()).getAccessToken().getJwtToken()
-};
-
-export const client = () => new AWSAppSyncClient(
-  {
-    disableOffline: true,
-    url: config.graphqlEndpoint,
-    region: config.region,
-    auth: authConfig,
-    complexObjectsCredentials: () => Auth.currentCredentials()
-  }
-);
-
 ReactDOM.render(
-  <ApolloProvider client={ client() }>
+  <ApolloProvider client={ authClient("app") }>
       <App />
   </ApolloProvider>,
   document.getElementById('root'));

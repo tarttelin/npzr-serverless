@@ -6,6 +6,8 @@ import { MockedProvider } from '@apollo/react-testing';
 import GetGame from "./GetGame";
 import { GET_GAME } from "../graphql";
 
+declare let apolloCall: any;
+
 describe('Load a game', () => {
   it('Loads a game by id', async () => {
 

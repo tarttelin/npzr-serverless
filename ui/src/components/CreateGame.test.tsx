@@ -6,6 +6,8 @@ import { MockedProvider } from '@apollo/react-testing';
 import CreateGame from "./CreateGame";
 import { CREATE_GAME } from "../graphql";
 
+declare let apolloCall: any;
+
 describe('Create a new game', () => {
   it('calls the createGame mutation', async () => {
     let mutationCalled = false;

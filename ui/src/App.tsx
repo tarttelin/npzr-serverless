@@ -12,7 +12,6 @@ const App: React.FC = () => {
     const setUsername = async () => {
       let name = (await Auth.currentUserInfo()).username;
       setPlayerName(name);
-      console.log("Name set to " + name);
     };
     setUsername();
   }, []);

@@ -12,7 +12,6 @@ class PlayScreen extends me.Stage {
         this.game = game;
     }
 
-
     onResetEvent() {
         // reset the score
         this.cardManager = new CardManager([this.game.player, this.game.opponent]);

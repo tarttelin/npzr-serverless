@@ -149,7 +149,15 @@ resources:
       CreateGameLogGroup:
         Type: AWS::Logs::LogGroup
         Properties:
+          RetentionInDays: "2"
+      JoinGameLogGroup:
+        Type: AWS::Logs::LogGroup
+        Properties:
           RetentionInDays: "7"
+      PlayCardLogGroup:
+        Type: AWS::Logs::LogGroup
+        Properties:
+          RetentionInDays: "2"
       staticBucket:
         Type: AWS::S3::Bucket
         Properties:

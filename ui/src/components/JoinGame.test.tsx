@@ -29,7 +29,7 @@ describe('Games available to join', () => {
 
     const container = enzyme.mount(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <JoinGame playGame={() => {}} playerName="George"/>
+        <JoinGame playerName="George"/>
       </MockedProvider>
     );
     await act(async () => {
@@ -57,7 +57,7 @@ describe('Games available to join', () => {
 
     const container = enzyme.mount(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <JoinGame playGame={() => {}} playerName="George"/>
+        <JoinGame playerName="George"/>
       </MockedProvider>
     );
     await act(async () => {
@@ -96,7 +96,7 @@ describe('Games available to join', () => {
 
     const container = enzyme.mount(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <JoinGame playGame={() => {}} playerName="George"/>
+        <JoinGame playerName="George"/>
       </MockedProvider>
     );
     await act(async () => {
@@ -135,7 +135,7 @@ describe('Games available to join', () => {
 
     const container = enzyme.mount(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <JoinGame playGame={() => {}} playerName="George"/>
+        <JoinGame playerName="George"/>
       </MockedProvider>
     );
     await act(async () => {
@@ -173,7 +173,7 @@ describe('Games available to join', () => {
 
     const container = enzyme.mount(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <JoinGame playGame={() => {}} playerName="George"/>
+        <JoinGame playerName="George"/>
       </MockedProvider>
     );
     await act(async () => {
@@ -212,7 +212,7 @@ describe('Games available to join', () => {
 
     const container = enzyme.mount(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <JoinGame playGame={callback} playerName="Beam"/>
+        <JoinGame playerName="Beam"/>
       </MockedProvider>
     );
     await act(async () => {
