@@ -12,7 +12,8 @@ import {ExecutionResult} from "apollo-link";
 import {MutationFunctionOptions} from "@apollo/react-common";
 import {PlayState} from "../viewmodels/player";
 import {observe} from "rxjs-observe";
-
+import { client as appSyncClient } from "../index";
+import AWSAppSyncClient from "aws-appsync/lib";
 type GameIdType = { id: string };
 
 interface JoinedGameProps extends RouteComponentProps<GameIdType> {
@@ -97,12 +98,16 @@ function convert(card: Card) {
     return proxy;
 }
 
+let _client: AWSAppSyncClient<any> | undefined = undefined;
+const client = () => _client ? _client : _client = appSyncClient();
+
 const PlayGame: FunctionComponent<JoinedGameProps> = ({match, playerName}) => {
     const [gameView, setGameView] = useState<GameContainer>();
     const [playCard, { error: mutationError }] = useMutation<PlayCardData, PlayCardVars>(PLAY_CARD);
     const {data: cardPlayedData} = useSubscription<PlayedCardData>(PLAYED_CARD_SUBSCRIPTION,
         {
-            variables: {gameId: match.params.id}
+            variables: {gameId: match.params.id},
+            client: client()
         });
     const {loading: initialLoad, data: getGameData} = useQuery<GetGameData>(GET_GAME, {variables: {gameId: match.params.id}});
 

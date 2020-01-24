@@ -24,7 +24,7 @@ const authConfig = {
     (await Auth.currentSession()).getAccessToken().getJwtToken()
 };
 
-const client = new AWSAppSyncClient(
+export const client = () => new AWSAppSyncClient(
   {
     disableOffline: true,
     url: config.graphqlEndpoint,
@@ -35,7 +35,7 @@ const client = new AWSAppSyncClient(
 );
 
 ReactDOM.render(
-  <ApolloProvider client={ client }>
+  <ApolloProvider client={ client() }>
       <App />
   </ApolloProvider>,
   document.getElementById('root'));
