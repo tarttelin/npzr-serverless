@@ -8,7 +8,7 @@ import {observe} from "rxjs-observe";
 export default class GameViewWrapper {
 
     private readonly game: GameView;
-    private cards: CardViewModel[] = [];
+    private static cards: CardViewModel[] = [];
     private readonly _playerName: string;
 
     constructor(gameView: GameView, playerName: string) {
@@ -41,6 +41,7 @@ export default class GameViewWrapper {
                 cardsToAdd.reverse().forEach(c => stackViewModel.legs.addCard(self.convert(c)));
             });
             player.playState = PlayState[playerState.playState];
+            player.setScore(playerState.completed.map(c => Character[c]));
         }
 
         syncPlayer(playerState, this.game.player);
@@ -69,13 +70,13 @@ export default class GameViewWrapper {
     };
 
     private convert = (card: Card) => {
-        let existingCard = this.cards.find(c => c.id === card.id);
+        let existingCard = GameViewWrapper.cards.find(c => c.id === card.id);
         if (existingCard) return existingCard;
         let character: Character = Character[card.characterType];
         let bodyPart: BodyPart = BodyPart[card.bodyPart];
         let {observables, proxy} = observe(new CardViewModel(character, bodyPart, card.id));
         proxy.observe = observables;
-        this.cards.push(proxy);
+        GameViewWrapper.cards.push(proxy);
         return proxy;
     }
 }

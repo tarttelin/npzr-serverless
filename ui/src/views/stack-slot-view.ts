@@ -4,17 +4,20 @@ import StackSlot from "../viewmodels/stack-slot";
 import CardManager from "./card-manager";
 import Card from "../viewmodels/card";
 import CardView from "./card-view";
+import {moveType} from "./mover";
 
 class StackSlotView extends me.DroptargetEntity {
 
     private readonly stackSlot: StackSlot;
     private game: Game;
     private cardManager: CardManager;
+    private _mover: moveType;
 
-    constructor(x: number, y: number, game: Game, stackSlot: StackSlot, cardManager: CardManager) {
+    constructor(x: number, y: number, game: Game, stackSlot: StackSlot, cardManager: CardManager, mover: moveType) {
         super(x, y, { width: CardView.width() + 2, height: CardView.height() + 2 });
         this.cardManager = cardManager;
         this.x = x;
+        this._mover = mover;
         this.anchorPoint.x = 0;
         this.anchorPoint.y = 0;
         this.color = 'white';
@@ -46,8 +49,7 @@ class StackSlotView extends me.DroptargetEntity {
     moveTo(x: number) {
         this.x = x;
         let y = this.pos.y;
-        let tween = new me.Tween(this.pos).to({x: x, y: y }, 500);
-        tween.start();
+        this._mover(this, x, y)
         this.stackSlot.cards.forEach(value => {
             let view = this.cardManager.lookup(value);
             view.moveTo(x, y);

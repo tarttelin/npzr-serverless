@@ -65,15 +65,15 @@ interface ShowGameProps extends JoinGameProps {
 }
 
 const ShowGames: FunctionComponent<ShowGameProps> = ({games, playerName }) => {
-  const [joinGame] = useMutation(JOIN_GAME);
+  const [joinGame, { loading }] = useMutation(JOIN_GAME);
   return (
     <div>
       { games.filter( g => g.players[0].userId !== playerName).map(game => {
-        return (<div className="joinGame" key={game.id}>Join game: <Button variant="contained" onClick={() => {
+        return (<div className="joinGame" key={game.id}>Join game: { loading ? (<span> ...</span>) : (<Button variant="contained" onClick={() => {
           joinGame({
             variables: { gameId: game.id }
           });
-        }}>{game.id} -  {game.players[0].userId}</Button></div>)
+        }}>{game.id} -  {game.players[0].userId}</Button>)}</div>)
       })}
     </div>);
 };

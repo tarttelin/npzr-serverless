@@ -22,7 +22,7 @@ class PlayScreen extends me.Stage {
 
         me.game.world.addChild(new DeckView(CardView.width() / 3,
             me.game.viewport.height / 2 - CardView.height() / 2), 1);
-        me.game.world.addChild(new DiscardPileView(CardView.width() / 3,
+        me.game.world.addChild(new DiscardPileView(CardView.width() / 3 - 13,
             me.game.viewport.height / 2 + CardView.height() / 2 + 10,
             this.cardManager, this.game.discardPile), 1);
     }

@@ -1,18 +1,20 @@
 import me from '../me';
 import Card, {BodyPart, Character} from '../viewmodels/card';
+import {moveType} from './mover';
 
 class CardView extends me.DraggableEntity {
     readonly card: Card;
-    private currentTween: any;
+    private readonly mover: moveType;
 
-    constructor(x: number, y: number, card: Card, faceDown: boolean) {
-        super(x, y, { image: 'cardFront', width: 100, height: 50, framewidth: 400, frameheight: 200 });
+    constructor(x: number, y: number, card: Card, faceDown: boolean, mover: moveType) {
+        super(x, y, { image: 'cardFront', width: CardView.width(), height: CardView.height(), framewidth: 400, frameheight: 200 });
         let animation = this.defineAnimation(card, faceDown);
         this.renderable.scale(CardView.width() / 400.0, CardView.height() / 200.0);
         this.renderable.resize(CardView.width(), CardView.height());
         this.renderable.setCurrentAnimation(animation);
         this.autoDepth = false;
         this.card = card;
+        this.mover = mover;
     }
 
     static width() {
@@ -22,8 +24,6 @@ class CardView extends me.DraggableEntity {
     static height() {
         return 50;
     }
-
-    updateWhenPaused = true;
 
     dragStart(e: any) {
         if (this.card.isMovable) {
@@ -77,12 +77,7 @@ class CardView extends me.DraggableEntity {
     }
 
     moveTo(x: number, y: number) {
-        if (this.currentTween) {
-           this.currentTween.to({x: x, y: y}, 500);
-           return;
-        }
-        this.currentTween = new me.Tween(this.pos).to({x: x, y: y}, 500).onComplete(() => { this.currentTween = undefined; });
-        this.currentTween.start();
+        this.mover(this, x, y);
     }
 
     flipCard() {

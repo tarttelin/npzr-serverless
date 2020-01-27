@@ -2,6 +2,7 @@ import Hand from "./hand";
 import Stack from "./stack";
 import Game from "./game";
 import { Observables, observe } from "rxjs-observe";
+import {Character} from "./card";
 
 export enum PlayState {
     Play,
@@ -17,6 +18,7 @@ class Player {
     observe?: Observables<Player>;
     game: Game;
     isOpponent: boolean;
+    score: Character[] = [];
 
     constructor(game: Game, opponent: boolean = false) {
         this.game = game;
@@ -33,6 +35,11 @@ class Player {
 
     addStack(id: string) {
         this.stacks.push(new Stack(this, id));
+    }
+
+    setScore(characters: Character[]) {
+        console.log("Score set");
+        this.score = characters;
     }
 }
 

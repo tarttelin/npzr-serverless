@@ -23,8 +23,7 @@ const PlayGameComponent: FunctionComponent<PlayGameComponentProps> = ({gameState
     },[gameState]);
 
     return  <div>
-        <div>{gameWrapper.opponent(gameState).playState !== "Wait" ? "Opponent's turn " : "Your turn to " + gameWrapper.currentPlayer(gameState).playState  + " "}
-            [ score {gameWrapper.currentPlayer(gameState).completed.map(c => (<span>{c} </span>))}]
+        <div id="turn">{gameWrapper.opponent(gameState).playState !== "Wait" ? "Opponent's turn " : "Your turn to " + gameWrapper.currentPlayer(gameState).playState  + " "}
             { errorMessage ? <span>{ errorMessage }</span> : <span>no error</span>}
         </div>
         <div id="screen"/>

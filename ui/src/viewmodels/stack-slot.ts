@@ -20,7 +20,7 @@ class StackSlot implements CardContainer {
             card.parent?.removeCard(card);
             card.parent = this;
             this.cards.push(card);
-            this.cards.filter(c => c.id != card.id).forEach(c => c.isMovable = false);
+            this.cards.filter(c => c.id !== card.id).forEach(c => c.isMovable = false);
         }
     }
 

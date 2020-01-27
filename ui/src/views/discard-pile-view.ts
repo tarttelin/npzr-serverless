@@ -17,9 +17,12 @@ class DiscardPileView extends me.Entity {
             this.moveToPile(card[0]);
         });
         this.color = 'white';
+        this.anchorPoint.x = 0;
+        this.anchorPoint.y = 0;
     }
 
-    update() {
+    update(dt: number) {
+        super.update(dt);
         return true;
     }
 
@@ -30,7 +33,6 @@ class DiscardPileView extends me.Entity {
 
     moveToPile(card?: Card) {
         if (!card) return;
-        console.log('move to discard pile');
         let view = this.cardManager.lookup(card);
         view.moveTo(this.pos.x + 1, this.pos.y + 1);
     }

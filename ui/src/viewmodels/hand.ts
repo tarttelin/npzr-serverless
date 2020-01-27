@@ -14,6 +14,7 @@ class Hand implements CardContainer {
     addCard(card: Card) {
         if (!this.cards.includes(card)) {
             this.cards.push(card);
+            card.parent?.removeCard(card);
             card.parent = this;
         }
     }

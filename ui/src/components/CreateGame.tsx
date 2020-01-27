@@ -13,10 +13,11 @@ interface CreateGameData {
 }
 
 const CreateGame = () => {
-  const [createGame, { data }] = useMutation<CreateGameData, CreateGameVars>(CREATE_GAME);
+  const [createGame, { data, loading }] = useMutation<CreateGameData, CreateGameVars>(CREATE_GAME);
   return (
     <div>
         { data !== undefined ? (<div id="createdResult">game created: {data.createGame.id}</div>) :
+            loading ? (<div>Creating game</div>) :
             (<Button variant="contained" color="primary" onClick={() => createGame({ variables: { opponent: 'Player' } })}>Create</Button>)}
     </div>
 
