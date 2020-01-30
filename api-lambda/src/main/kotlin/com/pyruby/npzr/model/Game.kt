@@ -20,6 +20,10 @@ data class Game(
         if (player2 != null || players[1].playerType != PlayerType.Player ) {
             throw IllegalStateException("Cannot join this game")
         }
+        return startGame(secondPlayer)
+    }
+
+    private fun startGame(secondPlayer: String): Game {
         val player1First = Random.nextBoolean()
         if (player1First) {
             return copy(players = listOf(players[0].copy(hand = deck.subList(0, 6), playState = PlayState.Play), players[1].copy(userId = secondPlayer, hand = deck.subList(6, 11))),
@@ -119,7 +123,12 @@ data class Game(
                 .plus( (0..4).map { idx -> Card("" + ids[(idx + 48)], BodyPart.Wild, CharacterType.values()[idx])})
                 .plus( (0..2).map { idx -> Card("" + ids[(idx + 53)], BodyPart.values()[idx], CharacterType.Wild)})
             val players = listOf(Player(username), Player(playerType = opponent))
-            return Game(deck = deck.shuffled(), players = players)
+            val game = Game(deck = deck.shuffled(), players = players)
+            return if (opponent == PlayerType.AI) {
+                game.startGame("Robot player")
+            } else {
+                game
+            }
         }
     }
 }

@@ -1,9 +1,11 @@
 directive @aws_subscribe( mutations: [String!]!) on FIELD_DEFINITION
+directive @aws_iam on FIELD_DEFINITION | OBJECT
+directive @aws_cognito_user_pools on FIELD_DEFINITION | OBJECT
 
 type Mutation {
     createGame(input: CreateGameInput!): Game
     joinGame(input: JoinGameInput!): Game
-    playCard(input: PlayCardInput!): Game
+    playCard(input: PlayCardInput!): Game @aws_iam @aws_cognito_user_pools
 }
 
 type Query {
@@ -52,13 +54,13 @@ enum PlayState {
     Wait
 }
 
-type Game {
+type Game @aws_iam @aws_cognito_user_pools {
     id: ID!
     players: [Player!]!,
     discardPile: [Card!]!
 }
 
-type Player {
+type Player @aws_iam @aws_cognito_user_pools {
     playerType: PlayerType!
     userId: String
     hand: [Card!]!
@@ -67,13 +69,13 @@ type Player {
     playState: PlayState!
 }
 
-type Card {
+type Card @aws_iam @aws_cognito_user_pools {
     id: ID!
     bodyPart: BodyPartType!
     characterType: CharacterType!
 }
 
-type Stack {
+type Stack @aws_iam @aws_cognito_user_pools {
     id: ID!
     head: [Card!]!
     torso: [Card!]!

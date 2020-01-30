@@ -24,8 +24,16 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:DescribeTable
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+        - sqs:ReceiveMessage
+        - sqs:GetQueueAttributes
+        - sqs:DeleteMessage
+        - appsync:GraphQL
       Resource:
         - { "Fn::GetAtt": ["GameDynamoDBTable", "Arn" ] }
+        - { "Fn::GetAtt": ["NPCQueue", "Arn"]}
+        - { "Fn::GetAtt": ["GraphQlApi", "Arn"]}
 
 custom:
   gameTableName: 'game-${self:provider.stage}'
@@ -40,7 +48,11 @@ custom:
     file: outputs.yaml
   appSync:
     name: npzr
+    logConfig:
+      level: ALL
     authenticationType: AMAZON_COGNITO_USER_POOLS
+    additionalAuthenticationProviders:
+      - authenticationType: AWS_IAM
     userPoolConfig:
       defaultAction: ALLOW
       userPoolId: { Ref: UserPool }
@@ -141,6 +153,19 @@ functions:
     handler: com.pyruby.npzr.handlers.PlayGameHandler
     package:
       artifact: api-lambda/build/libs/api-lambda-dev-all.jar
+  npcPlayer:
+    handler: com.pyruby.npzr.npc.NpcPlayerHandler
+    package:
+      artifact: npc-lambda/build/libs/npc-lambda-dev-all.jar
+    events:
+      - sqs:
+          arn: { "Fn::GetAtt": ["NPCQueue", "Arn" ] }
+    environment:
+      API_URL:
+        { "Fn::GetAtt": [
+          "GraphQlApi",
+          "GraphQLUrl"
+        ]}
 
 resources:
   - '${file(resources/cognito.yml)}'
@@ -149,7 +174,7 @@ resources:
       CreateGameLogGroup:
         Type: AWS::Logs::LogGroup
         Properties:
-          RetentionInDays: "2"
+          RetentionInDays: "3"
       JoinGameLogGroup:
         Type: AWS::Logs::LogGroup
         Properties:
@@ -157,7 +182,7 @@ resources:
       PlayCardLogGroup:
         Type: AWS::Logs::LogGroup
         Properties:
-          RetentionInDays: "2"
+          RetentionInDays: "3"
       staticBucket:
         Type: AWS::S3::Bucket
         Properties:
@@ -237,3 +262,7 @@ resources:
           Name:
             Ref: staticBucket
           Type: A
+      NPCQueue:
+        Type: "AWS::SQS::Queue"
+        Properties:
+          QueueName: NPCQueue-${self:provider.stage}

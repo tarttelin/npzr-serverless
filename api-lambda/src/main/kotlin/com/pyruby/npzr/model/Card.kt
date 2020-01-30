@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperFieldModel
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 @DynamoDBDocument
 data class Card(
@@ -12,5 +13,6 @@ data class Card(
         @DynamoDBTyped(DynamoDBMapperFieldModel.DynamoDBAttributeType.S) var characterType: CharacterType = CharacterType.Ninja
 ) {
     @DynamoDBIgnore
+    @JsonIgnore
     fun isWild(): Boolean = bodyPart == BodyPart.Wild || characterType == CharacterType.Wild
 }

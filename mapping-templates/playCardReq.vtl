@@ -4,6 +4,6 @@
 "payload": {
 "field": "playCard",
 "args":  $utils.toJson($context.arguments),
-"identity": "$context.identity.username"
+"identity": #if("$!context.identity.userArn" == "") "$context.identity.username" #else "Robot player" #end
 }
 }

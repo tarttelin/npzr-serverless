@@ -10,8 +10,9 @@ task("buildUi", Exec::class) {
 }
 
 task("deploy", Exec::class) {
-    dependsOn("buildUi", ":api-lambda:shadowJar")
+    dependsOn("buildUi", ":api-lambda:shadowJar", ":npc-lambda:shadowJar")
     tasks.findByName(":api-lambda:shadowJar")?.mustRunAfter("buildUi")
+    tasks.findByName(":npc-lambda:shadowJar")?.mustRunAfter("buildUi")
     commandLine("serverless", "deploy")
 }
 
