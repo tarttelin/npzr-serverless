@@ -35,7 +35,7 @@ class GameContainer {
     }
 
     loaded() {
-        const PlayScreen = require('./screens/play');
+        const PlayScreen = require('./screens/play').default;
         me.state.set(me.state.PLAY, new PlayScreen(this.game));
 
         // Start the game.

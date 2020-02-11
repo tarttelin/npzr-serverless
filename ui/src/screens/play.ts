@@ -7,6 +7,8 @@ import CardView from "../views/card-view";
 import DiscardPileView from "../views/discard-pile-view";
 
 class PlayScreen extends me.Stage {
+    game: Game;
+
     constructor(game: Game) {
         super();
         this.game = game;
@@ -14,9 +16,9 @@ class PlayScreen extends me.Stage {
 
     onResetEvent() {
         // reset the score
-        this.cardManager = new CardManager([this.game.player, this.game.opponent]);
-        this.playerView = new PlayerView(this.game.player, this.game, this.cardManager);
-        this.opponentView = new PlayerView(this.game.opponent, this.game, this.cardManager);
+        const cardManager = new CardManager([this.game.player, this.game.opponent]);
+        const playerView = new PlayerView(this.game.player, this.game, cardManager);
+        const opponentView = new PlayerView(this.game.opponent, this.game, cardManager);
 
         me.game.world.addChild(new me.ColorLayer("background", "#003400", 0), 0);
 
@@ -24,12 +26,12 @@ class PlayScreen extends me.Stage {
             me.game.viewport.height / 2 - CardView.height() / 2), 1);
         me.game.world.addChild(new DiscardPileView(CardView.width() / 3 - 13,
             me.game.viewport.height / 2 + CardView.height() / 2 + 10,
-            this.cardManager, this.game.discardPile), 1);
+            cardManager, this.game.discardPile), 1);
     }
 
     onDestroyEvent() {
         // remove the HUD from the game world
-        me.game.world.removeChild(this.HUD);
+        // me.game.world.removeChild(this.HUD);
     }
 }
 

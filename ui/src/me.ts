@@ -1,77 +1,80 @@
 // @ts-ignore
-let melon: any;
+let melon: any = undefined;
 
 // The wrapper here is to introduce a testing seam.
 
-const me = {
-    get game() {
+const mo = {
+    get game():any {
         return _me().game;
     },
-    get Entity() {
+    get Entity():any {
         return _me().Entity
     },
-    get DraggableEntity() {
+    get DraggableEntity():any {
         return _me().DraggableEntity;
     },
-    get timer() {
-        return _me().Timer;
+    get timer():any {
+        return _me().timer;
     },
-    get Rect() {
+    get Rect():any {
         return _me().Rect;
     },
-    get Renderable() {
+    get Renderable():any {
         return _me().Renderable;
     },
-    get Container() {
+    get Container():any {
         return _me().Container;
     },
-    get Tween() {
+    get Tween():any {
         return _me().Tween;
     },
-    get DroptargetEntity() {
+    get DroptargetEntity():any {
         return _me().DroptargetEntity;
     },
-    get video() {
+    get video():any {
         return _me().video;
     },
-    get audio() {
+    get audio():any {
         return _me().audio;
     },
-    get loader() {
+    get loader():any {
         return _me().loader;
     },
-    get state() {
+    get state():any {
         return _me().state;
     },
-    get sys() {
+    get sys():any {
         return _me().sys;
     },
-    get device() {
+    get device():any {
         return _me().device;
     },
-    get event() {
+    get event():any {
         return _me().event;
     },
-    get plugin() {
+    get plugin():any {
         return _me().plugin;
     },
-    get debug() {
+    get debug():any {
         return _me().debug;
     },
-    get input() {
+    get input():any {
         return _me().input;
     },
-    get Stage() {
+    get Stage():any {
         return _me().Stage;
     },
-    get ColorLayer() {
+    get ColorLayer():any {
         return _me().ColorLayer;
     }
 };
 
 function _me():any {
-    if (melon) return melon;
-        melon = require("melonjs");
-    return melon;
+    if (melon) return melon.me;
+    console.log("create melon");
+    melon = require("melonjs");
+    melon.me.boot();
+    return melon.me;
 }
-export default me;
+
+export default mo;
