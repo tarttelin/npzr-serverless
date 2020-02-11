@@ -28,20 +28,23 @@ const JoinGame: FunctionComponent<JoinGameProps> = ({ playerName }) => {
   const [games, setGames] = useState<Game[]>([]);
   const [currentGame, playGame] = useState<Game>();
   const { loading, data: gameList } = useQuery<JoinGameData>(GAMES_TO_JOIN);
-  useSubscription<JoinedGameData>(JOINED_GAME_SUBSCRIPTION,
-      { onSubscriptionData: ({subscriptionData}) => {
-        if (subscriptionData?.data?.joinedGame && games.find( game => game.id === subscriptionData.data?.joinedGame.id)) {
-          let gameJoined = subscriptionData.data.joinedGame;
-          setGames(games.filter(g => g.id !== gameJoined.id));
-          if (gameJoined.players.find(p => p.userId === playerName)) {
-            playGame(gameJoined);
-          }
+  useSubscription<JoinedGameData>(JOINED_GAME_SUBSCRIPTION,{
+    onSubscriptionData: ({subscriptionData}) => {
+      if (subscriptionData?.data?.joinedGame && games.find( game => game.id === subscriptionData.data?.joinedGame.id)) {
+        let gameJoined = subscriptionData.data.joinedGame;
+        setGames(games.filter(g => g.id !== gameJoined.id));
+        if (gameJoined.players.find(p => p.userId === playerName)) {
+          playGame(gameJoined);
         }
-        }});
+      }
+    }
+  });
+
   useSubscription<CreatedGameType>(NEW_GAME_SUBSCRIPTION, {
     onSubscriptionData: ({subscriptionData}) => {
       if (subscriptionData.data?.createdGame && !games.find(game => game.id === subscriptionData.data?.createdGame.id)) {
-        setGames([subscriptionData.data.createdGame, ...games]);
+        let combinedGames = [subscriptionData.data.createdGame, ...games];
+        setGames(combinedGames);
       }
     }
   });
@@ -53,6 +56,7 @@ const JoinGame: FunctionComponent<JoinGameProps> = ({ playerName }) => {
   }
 
   if (currentGame) {
+    console.log("redirect")
     return (<Redirect to={`/game/${currentGame.id}`}/>)
   } else {
     return <ShowGames games={games} playerName={playerName}/>

@@ -14,7 +14,6 @@ export default class GameViewWrapper {
     constructor(gameView: GameView, playerName: string) {
         this.game = gameView;
         this._playerName = playerName;
-
     }
 
     updateView = (gameState: GameModel) => {

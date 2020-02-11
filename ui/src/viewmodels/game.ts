@@ -12,12 +12,12 @@ class Game {
 
     constructor(playCard: (card: Card, stackSlot: StackSlot) => void) {
         const initPlayer = () => {
-            let { observables, proxy } = observe(new Player(this, false));
+            let { observables, proxy } = observe(new Player(false));
             proxy.observe = observables;
             return proxy;
         };
         const initOpponent = () => {
-            let { observables, proxy } = observe(new Player(this, true));
+            let { observables, proxy } = observe(new Player(true));
             proxy.observe = observables;
             return proxy;
         };

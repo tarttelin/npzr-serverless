@@ -64,7 +64,6 @@ const PlayGame: FunctionComponent<PlayGameProps> = ({match, playerName}) => {
     const {loading: initialLoad, data: getGameData} = useQuery<GetGameData>(GET_GAME, {variables: {gameId: match.params.id}});
 
     let gameState = cardPlayedData?.playedCard || getGameData?.getGame;
-
     return (
         <>
             {(initialLoad || !gameState || !playerName) ? (<div>Loading</div>) : (

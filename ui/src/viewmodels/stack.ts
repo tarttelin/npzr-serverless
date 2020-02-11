@@ -1,17 +1,14 @@
 import StackSlot from "./stack-slot";
 import {observe} from "rxjs-observe";
 import {BodyPart} from "./card";
-import Player from "./player";
 
 class Stack {
     head: StackSlot;
     torso: StackSlot;
     legs: StackSlot;
-    owner: Player;
     id: string;
 
-    constructor(owner: Player, id: string) {
-        this.owner = owner;
+    constructor(id: string) {
         this.id = id;
         const initHead = (stack: Stack) => {
             let stackSlot = new StackSlot(stack, BodyPart.Head);

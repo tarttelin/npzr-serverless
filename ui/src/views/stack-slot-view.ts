@@ -11,7 +11,7 @@ class StackSlotView extends me.DroptargetEntity {
     private readonly stackSlot: StackSlot;
     private game: Game;
     private cardManager: CardManager;
-    private _mover: moveType;
+    private readonly _mover: moveType;
 
     constructor(x: number, y: number, game: Game, stackSlot: StackSlot, cardManager: CardManager, mover: moveType) {
         super(x, y, { width: CardView.width() + 2, height: CardView.height() + 2 });
@@ -49,7 +49,7 @@ class StackSlotView extends me.DroptargetEntity {
     moveTo(x: number) {
         this.x = x;
         let y = this.pos.y;
-        this._mover(this, x, y)
+        this._mover(this, x, y);
         this.stackSlot.cards.forEach(value => {
             let view = this.cardManager.lookup(value);
             view.moveTo(x, y);

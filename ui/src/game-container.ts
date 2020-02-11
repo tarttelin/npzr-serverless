@@ -1,8 +1,6 @@
 import Game from "./viewmodels/game";
 import me from './me';
-import PlayScreen from './screens/play';
 import resources from './resources';
-
 
 class GameContainer {
     game: Game;
@@ -37,6 +35,7 @@ class GameContainer {
     }
 
     loaded() {
+        const PlayScreen = require('./screens/play');
         me.state.set(me.state.PLAY, new PlayScreen(this.game));
 
         // Start the game.
