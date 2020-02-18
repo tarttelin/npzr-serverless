@@ -72,13 +72,16 @@ data class Game(
         return when(player.playState) {
             PlayState.Wait -> if (hasCompletedStack || wild) player else player.copy(playState = PlayState.Play, hand = player.hand.plus(deck.first()))
             PlayState.Move -> if (hasCompletedStack) player else player.copy(playState = PlayState.Wait)
-            PlayState.MoveWild -> if (hasCompletedStack) player else player.copy(playState = PlayState.Play)
+            PlayState.MoveWild ->
+                if (hasCompletedStack) player
+                else if (player.hand.isNotEmpty()) player.copy(playState = PlayState.Play)
+                else player.copy(playState = PlayState.Wait)
             PlayState.Play ->
                 if (hasCompletedStack && wild)
                     player.copy(playState = PlayState.MoveWild)
                 else if (hasCompletedStack)
                     player.copy(playState = PlayState.Move)
-                else if (wild)
+                else if (wild && player.hand.isNotEmpty())
                     player
                 else
                     player.copy(playState = PlayState.Wait)

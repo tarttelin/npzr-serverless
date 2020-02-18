@@ -125,6 +125,20 @@ class GameTest {
     }
 
     @Test
+    fun `A player can play another card after playing a wild card`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        activePlayer `should not be` null
+        val cardToPlay = activePlayer?.hand?.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Wild
+        val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
+        updatedGame.activePlayer()?.playState `should equal` PlayState.Play
+    }
+
+    @Test
     fun `A player cannot play a card from their hand onto an invalid stack position`() {
         val pendingGame = Game.createGame("bob", PlayerType.Player)
         val initialGame = pendingGame.join("bill")
@@ -200,7 +214,7 @@ class GameTest {
     }
 
     @Test
-    fun `When a player completes a stack they their play state changes to move`() {
+    fun `When a player completes a stack then their play state changes to move`() {
         val pendingGame = Game.createGame("bob", PlayerType.Player)
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
@@ -213,7 +227,7 @@ class GameTest {
         val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(stacks = listOf(stack)), initialGame.players.find { p -> p.userId != activePlayer.userId }!!))
         val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
         updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
-        val originalPlayer = updatedGame.players.find { p -> p.userId == activePlayer.userId }!!
+        val originalPlayer = updatedGame.activePlayer()!!
         originalPlayer.playState `should equal` PlayState.Move
     }
 
@@ -277,5 +291,20 @@ class GameTest {
         val originalOpponent = updatedGame.players.find { p -> p.userId != activePlayer.userId }!!
         originalOpponent.stacks[0].head.size `should equal` 0
         originalOpponent.completed `should equal` listOf(CharacterType.Ninja.name)
+    }
+
+    @Test
+    fun `When a player plays a wild card as the last card in their hand and doesn't complete a stack it is the opponent's turn`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val activePlayer = initialGame.activePlayer()!!
+        val opponentPlayer = initialGame.players.find { it.userId != activePlayer.userId }!!
+        val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(hand=activePlayer.hand.subList(0,1)), opponentPlayer))
+        val cardToPlay = activePlayer.hand.get(0)!!
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Wild
+        val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should equal` opponentPlayer.userId
+        updatedGame.activePlayer()?.playState `should equal` PlayState.Play
     }
 }
