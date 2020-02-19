@@ -37,6 +37,8 @@ interface PlayCard {
                 else
                     cardPosition
 
+        fun firstEmpty(stacks: List<Stack>) = stacks.filter { s -> s.head.isEmpty() && s.torso.isEmpty() && s.legs.isEmpty()}.first()
+
         private fun validPosition(card: Card, expectedPosition: Position) = card.bodyPart == expectedPosition || card.bodyPart == Position.Wild
 
     }

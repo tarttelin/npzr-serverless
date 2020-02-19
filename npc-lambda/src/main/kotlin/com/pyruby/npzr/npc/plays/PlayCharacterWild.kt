@@ -1,6 +1,7 @@
 package com.pyruby.npzr.npc.plays
 
 import com.pyruby.npzr.npc.model.*
+import com.pyruby.npzr.npc.plays.PlayCard.Companion.firstEmpty
 import com.pyruby.npzr.npc.plays.PlayCard.Companion.playCompletesCharacter
 
 class PlayCharacterWild: PlayCard {
@@ -16,7 +17,7 @@ class PlayCharacterWild: PlayCard {
             return stackMatches.first()
         else if (matches.isNotEmpty()) {
             val (_, matchingCards) = matches.first()
-            return Play(matchingCards.first(), player.stacks.last(), matchingCards.first().bodyPart)
+            return Play(matchingCards.first(), firstEmpty(player.stacks), matchingCards.first().bodyPart)
         }
         return null
     }
