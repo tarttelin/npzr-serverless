@@ -34,8 +34,6 @@
         * card matches character on existing stack
             * lay on that stack
         * lay on first empty stack
-1. Non wild card in hand
-    * lay in first empty stack
 1. Lay in first valid empty stack slot (wild cards only left)
 
 ### Move

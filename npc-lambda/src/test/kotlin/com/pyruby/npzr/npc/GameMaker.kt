@@ -23,15 +23,13 @@ class GameMaker {
             Player("Player", playerCompleted, _playerHand, "Move", "AI", _playerStacks, "Robot")
     ))
 
-    fun playerHand(vararg cards: Card): GameMaker {
-        _playerHand = cards.toList()
-        return this
+    fun playerHand(vararg cards: Card) = apply { _playerHand = cards.toList() }
+
+    fun playerStacks(vararg stacks: Stack) = apply {
+        _playerStacks = stacks.toList().plus(Stack("Stack", emptyList(), "10", emptyList(), emptyList()))
     }
 
-    fun playerStacks(vararg stacks: Stack): GameMaker {
-        _playerStacks = stacks.toList().plus(Stack("Stack", emptyList(), "10", emptyList(), emptyList()))
-        return this
-    }
+    fun playerScore(vararg characters: Character) = apply { playerCompleted = characters.toList() }
 
     companion object {
         private var stackCount = 1

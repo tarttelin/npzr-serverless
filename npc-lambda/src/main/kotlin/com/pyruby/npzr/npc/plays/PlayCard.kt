@@ -17,6 +17,14 @@ interface PlayCard {
             return null
         }
 
+        fun scorePlay(play: ScoredPlay, playerComplete: List<Character>): ScoredPlay {
+            var score = 0
+            if (play.play.card.characterType == Character.Wild) score -= 1
+            if (play.play.card.bodyPart == Position.Wild) score -= 1
+            if (play.character != Character.Wild && !playerComplete.contains(play.character)) score += 3
+            return play.copy(score=score)
+        }
+
         private fun validPosition(card: Card, expectedPosition: Position) = card.bodyPart == expectedPosition || card.bodyPart == Position.Wild
 
     }
