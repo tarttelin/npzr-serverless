@@ -11,12 +11,14 @@ import com.amazonaws.http.HttpMethodName
 import com.amazonaws.http.HttpResponse
 import com.amazonaws.http.HttpResponseHandler
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.pyruby.npzr.npc.model.Position
 import org.apache.http.HttpHeaders
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.net.URI
 
+typealias PlayCardCall = (gameId: String, cardId: String, stackId: String, position: Position) -> Unit
 
 object GameGateway {
     private val logger by LoggerDelegate()
@@ -70,8 +72,8 @@ object GameGateway {
             }
     """.trimIndent()
 
-    fun makePlayCardRequest(gameId: String, cardId: String, stackId: String, position: String) {
-        val payloadBytes = makePayload(gameId, cardId, stackId, position)
+    fun makePlayCardRequest(gameId: String, cardId: String, stackId: String, position: Position) {
+        val payloadBytes = makePayload(gameId, cardId, stackId, position.name)
         val req = DefaultRequest<AmazonWebServiceRequest>("AppSync")
         req.httpMethod = HttpMethodName.POST
         req.endpoint = URI.create(System.getenv("API_URL"))
