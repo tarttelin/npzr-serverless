@@ -11,7 +11,7 @@ class PlayMatchingCharacterOnExistingStack: PlayCard {
                 s -> Pair(s, listOfNotNull(s.head.firstOrNull(), s.torso.firstOrNull(), s.legs.firstOrNull())
                     .filter { it.characterType == c.characterType && it.bodyPart != c.bodyPart })
             }
-                    .filter { (stack, matches) -> matches.isNotEmpty()}
+                    .filter { (_, matches) -> matches.isNotEmpty()}
                     .map { (stack, matches) -> Play(c, stack, if (c.bodyPart == Position.Wild) Position.values().asList().minus(matches.map { it.bodyPart }).first() else c.bodyPart) }
         }
         return availablePlays.map { scorePlay(ScoredPlay(0, it.card.characterType, it), player.completed) }

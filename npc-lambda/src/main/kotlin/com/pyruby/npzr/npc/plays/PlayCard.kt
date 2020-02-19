@@ -25,6 +25,18 @@ interface PlayCard {
             return play.copy(score=score)
         }
 
+        fun chooseCharacter(cardCharacter: Character, scored: List<Character>) =
+                if (cardCharacter == Character.Wild)
+                    Character.values().toList().shuffled().minus(scored).first()
+                else
+                    cardCharacter
+
+        fun choosePosition(cardPosition: Position) =
+                if (cardPosition == Position.Wild)
+                    Position.values().toList().minus(Position.Wild).shuffled().first()
+                else
+                    cardPosition
+
         private fun validPosition(card: Card, expectedPosition: Position) = card.bodyPart == expectedPosition || card.bodyPart == Position.Wild
 
     }

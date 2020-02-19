@@ -110,7 +110,7 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         activePlayer `should not be` null
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
@@ -130,7 +130,7 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         activePlayer `should not be` null
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Wild
         val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
@@ -144,7 +144,7 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         activePlayer `should not be` null
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         invoking { initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Legs) } `should throw` PlayException::class
@@ -156,7 +156,7 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         val opponent = initialGame.players.find { it.userId != activePlayer.userId }!!
-        val cardToPlay = opponent?.hand?.get(0)!!
+        val cardToPlay = opponent.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         invoking { initialGame.playCard(opponent.userId!!, cardToPlay.id!!, opponent.stacks[0].id, BodyPart.Head) } `should throw` PlayException::class
@@ -186,7 +186,7 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         val opponent = initialGame.players.find { it.userId != activePlayer.userId }!!
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, opponent.stacks[0].id, BodyPart.Head)
@@ -204,7 +204,7 @@ class GameTest {
         val pendingGame = Game.createGame("bob", PlayerType.Player)
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
@@ -219,11 +219,11 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         activePlayer `should not be` null
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         val stack = activePlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
-            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs);
+            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs)
         val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(stacks = listOf(stack)), initialGame.players.find { p -> p.userId != activePlayer.userId }!!))
         val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
         updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
@@ -237,11 +237,11 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         activePlayer `should not be` null
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         val stack = activePlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
-            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs);
+            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs)
         val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(stacks = listOf(stack)), initialGame.players.find { p -> p.userId != activePlayer.userId }!!))
         val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
         updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
@@ -259,12 +259,12 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         activePlayer `should not be` null
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         val stack = activePlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
             .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs)
-                .play(Card("334", BodyPart.Head, CharacterType.Pirate), BodyPart.Head);
+                .play(Card("334", BodyPart.Head, CharacterType.Pirate), BodyPart.Head)
         val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(stacks = listOf(stack)), initialGame.players.find { p -> p.userId != activePlayer.userId }!!))
         val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
         updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
@@ -279,12 +279,12 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         val opponentPlayer = initialGame.players.find { it.userId != activePlayer.userId }!!
-        val cardToPlay = activePlayer?.hand?.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         val stack = opponentPlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
             .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs)
-                .play(Card("334", BodyPart.Head, CharacterType.Pirate), BodyPart.Head);
+                .play(Card("334", BodyPart.Head, CharacterType.Pirate), BodyPart.Head)
         val expectedGame = initialGame.copy(players = listOf(opponentPlayer.copy(stacks = listOf(stack)), activePlayer))
         val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, opponentPlayer.stacks[0].id, BodyPart.Head)
         updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
@@ -300,7 +300,7 @@ class GameTest {
         val activePlayer = initialGame.activePlayer()!!
         val opponentPlayer = initialGame.players.find { it.userId != activePlayer.userId }!!
         val expectedGame = initialGame.copy(players = listOf(activePlayer.copy(hand=activePlayer.hand.subList(0,1)), opponentPlayer))
-        val cardToPlay = activePlayer.hand.get(0)!!
+        val cardToPlay = activePlayer.hand.get(0)
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Wild
         val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)

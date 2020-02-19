@@ -7,16 +7,11 @@ buildscript {
         jcenter()
         mavenCentral()
     }
-    dependencies {
-        classpath("com.apollographql.apollo:apollo-gradle-plugin:1.3.0")
-    }
 }
 
 
 plugins {
-    kotlin("jvm") version "1.3.50"
     id("com.github.johnrengelman.shadow") version "5.2.0"
-    id("com.apollographql.apollo") version "1.3.0"
 }
 
 repositories {
@@ -37,8 +32,6 @@ dependencies {
     implementation("com.amazonaws:aws-lambda-java-log4j2:1.0.0")
     implementation("com.amazonaws:aws-lambda-java-events:2.2.7")
     implementation("com.amazonaws:aws-java-sdk-lambda:1.11.106")
-
-    implementation("com.apollographql.apollo:apollo-runtime:1.3.0")
 
     implementation("com.fasterxml.jackson.core:jackson-core:2.9.10")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.10")

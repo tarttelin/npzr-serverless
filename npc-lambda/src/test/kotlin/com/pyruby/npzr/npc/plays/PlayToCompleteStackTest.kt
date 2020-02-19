@@ -40,7 +40,7 @@ internal class PlayToCompleteStackTest {
                         stack(head=card(WildPosition, Ninja), torso=card(Torso, Robot)),
                         stack(head=card(Head, Pirate), torso=card(Torso, Pirate))
                 )
-                .playerHand(card(Head, Ninja), expectedCard, card())
+                .playerHand(card(Head, Ninja), expectedCard, card(Torso, Pirate))
                 .readyToPlay()
         val strategy = PlayToCompleteStack()
         val play = strategy.playCard(game.players[1], game.players[0])!!

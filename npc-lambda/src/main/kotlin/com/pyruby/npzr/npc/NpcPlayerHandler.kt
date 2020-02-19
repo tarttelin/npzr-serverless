@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.pyruby.npzr.npc.model.Game
 import com.pyruby.npzr.npc.model.Player
 import com.pyruby.npzr.npc.model.Position
+import com.pyruby.npzr.npc.moves.MoveAnyCard
 import com.pyruby.npzr.npc.plays.*
 
 
@@ -14,6 +15,7 @@ class NpcPlayerHandler(val playCard: PlayCardCall = GameGateway::makePlayCardReq
     private val logger by LoggerDelegate()
     val mapper = jacksonObjectMapper()
     private val plays = listOf(PlayToCompleteStack(), PlayCharacterWild(), PlayMatchingCharacterOnExistingStack(), PlayHighestScoreAnyCard())
+    private val moves = listOf(MoveAnyCard())
 
     override fun handleRequest(input: SQSEvent?, context: Context?) {
         input?.records?.forEach { action ->
@@ -30,12 +32,13 @@ class NpcPlayerHandler(val playCard: PlayCardCall = GameGateway::makePlayCardReq
         }
     }
 
-    fun moveCard(npc: Player, oppo: Player): Play {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun moveCard(npc: Player, oppo: Player): Play {
+        val move = moves.mapNotNull { it.moveCard(npc, oppo) }.first()
+        return move
     }
 
-    fun playCard(npc: Player, oppo: Player): Play {
-        val play = plays.map { it.playCard(npc, oppo) }.filterNotNull().first()
+    private fun playCard(npc: Player, oppo: Player): Play {
+        val play = plays.mapNotNull { it.playCard(npc, oppo) }.first()
         return play
     }
 }

@@ -3,6 +3,8 @@ package com.pyruby.npzr.npc.plays
 import com.pyruby.npzr.npc.model.Character
 import com.pyruby.npzr.npc.model.Player
 import com.pyruby.npzr.npc.model.Position
+import com.pyruby.npzr.npc.plays.PlayCard.Companion.chooseCharacter
+import com.pyruby.npzr.npc.plays.PlayCard.Companion.choosePosition
 import com.pyruby.npzr.npc.plays.PlayCard.Companion.scorePlay
 
 class PlayHighestScoreAnyCard: PlayCard {
@@ -14,15 +16,5 @@ class PlayHighestScoreAnyCard: PlayCard {
         return availablePlays.first().play
     }
 
-    private fun chooseCharacter(cardCharacter: Character, scored: List<Character>) =
-            if (cardCharacter == Character.Wild)
-                Character.values().toList().shuffled().minus(scored).first()
-            else
-                cardCharacter
 
-    private fun choosePosition(cardPosition: Position) =
-            if (cardPosition == Position.Wild)
-                Position.values().toList().minus(Position.Wild).shuffled().first()
-            else
-                cardPosition
 }

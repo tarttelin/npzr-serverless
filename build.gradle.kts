@@ -1,5 +1,12 @@
 plugins {
     base
+    kotlin("jvm") version "1.3.50" apply false
+}
+
+subprojects {
+    if (name.endsWith("-lambda")) {
+        apply(plugin = "kotlin")
+    }
 }
 
 task("buildUi", Exec::class) {
