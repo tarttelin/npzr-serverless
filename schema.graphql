@@ -34,8 +34,7 @@ enum BodyPartType {
     Head,
     Torso,
     Legs,
-    Wild,
-    Flipped
+    Wild
 }
 
 enum CharacterType {
@@ -43,15 +42,16 @@ enum CharacterType {
     Pirate,
     Zombie,
     Robot,
-    Wild,
-    Flipped
+    Wild
 }
 
 enum PlayState {
     Play,
     Move,
     MoveWild,
-    Wait
+    Wait,
+    Winner,
+    Loser
 }
 
 type Game @aws_iam @aws_cognito_user_pools {

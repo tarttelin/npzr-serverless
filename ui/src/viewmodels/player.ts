@@ -7,7 +7,9 @@ export enum PlayState {
     Play,
     Move,
     MoveThenPlay,
-    Wait
+    Wait,
+    Winner,
+    Loser
 }
 
 class Player {

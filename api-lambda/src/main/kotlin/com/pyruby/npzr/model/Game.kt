@@ -41,6 +41,7 @@ data class Game(
             activePlayer()?.hand?.find { card -> card.id == cardId } ?:
             throw PlayException("Card not in your hand")
         } else {
+            if (activePlayer()?.playState !in listOf(PlayState.Move, PlayState.MoveWild)) throw PlayException("Not your turn to move a card")
             players.flatMap { it.stacks }
                     .flatMap { listOf(it.head.firstOrNull(), it.torso.firstOrNull(), it.legs.firstOrNull())}
                     .firstOrNull { it?.id == cardId } ?:
@@ -58,8 +59,8 @@ data class Game(
                 stacks = updateStacks(opponent.stacks, updatedStack, cardToPlay)))
 
         val hasCompletedStack = !discards.plus(opponentDiscards).isEmpty()
-        val playerStateUpdate = updatePlayerState(scoredPlayer, hasCompletedStack, cardToPlay.isWild())
-        val opponentStateUpdate = updatePlayerState(scoredOpponent, hasCompletedStack, playerStateUpdate.playState != PlayState.Wait)
+        val playerStateUpdate = updatePlayerState(scoredPlayer, scoredOpponent, hasCompletedStack, cardToPlay.isWild())
+        val opponentStateUpdate = updatePlayerState(scoredOpponent, scoredPlayer, hasCompletedStack, playerStateUpdate.playState != PlayState.Wait)
 
         return this.copy(
                 deck = if (opponentStateUpdate.playState == PlayState.Play) deck.subList(1, deck.size) else deck,
@@ -68,16 +69,40 @@ data class Game(
         )
     }
 
-    private fun updatePlayerState(player: Player, hasCompletedStack: Boolean, wild: Boolean): Player {
+    private fun updatePlayerState(player: Player, opponent: Player, hasCompletedStack: Boolean, wild: Boolean): Player {
         return when(player.playState) {
-            PlayState.Wait -> if (hasCompletedStack || wild) player else player.copy(playState = PlayState.Play, hand = player.hand.plus(deck.first()))
-            PlayState.Move -> if (hasCompletedStack) player else player.copy(playState = PlayState.Wait)
+            PlayState.Wait ->
+                if (winner(player.completed))
+                    player.copy(playState = PlayState.Winner)
+                else if (winner(opponent.completed))
+                    player.copy(playState = PlayState.Loser)
+                else if (hasCompletedStack || wild)
+                    player
+                else
+                    player.copy(playState = PlayState.Play, hand = player.hand.plus(deck.first()))
+            PlayState.Move ->
+                if (winner(player.completed))
+                    player.copy(playState = PlayState.Winner)
+                else if (winner(opponent.completed))
+                    player.copy(playState = PlayState.Loser)
+                else if (hasCompletedStack)
+                    player
+                else
+                    player.copy(playState = PlayState.Wait)
             PlayState.MoveWild ->
-                if (hasCompletedStack) player
+                if (winner(player.completed))
+                    player.copy(playState = PlayState.Winner)
+                else if (winner(opponent.completed))
+                    player.copy(playState = PlayState.Loser)
+                else if (hasCompletedStack) player
                 else if (player.hand.isNotEmpty()) player.copy(playState = PlayState.Play)
                 else player.copy(playState = PlayState.Wait)
             PlayState.Play ->
-                if (hasCompletedStack && wild)
+                if (winner(player.completed))
+                    player.copy(playState = PlayState.Winner)
+                else if (winner(opponent.completed))
+                    player.copy(playState = PlayState.Loser)
+                else if (hasCompletedStack && wild)
                     player.copy(playState = PlayState.MoveWild)
                 else if (hasCompletedStack)
                     player.copy(playState = PlayState.Move)
@@ -85,6 +110,8 @@ data class Game(
                     player
                 else
                     player.copy(playState = PlayState.Wait)
+            PlayState.Loser -> player
+            PlayState.Winner -> player
         }
     }
 
@@ -108,6 +135,8 @@ data class Game(
     }
 
     fun activePlayer(): Player? = players.find { p -> p.playState != PlayState.Wait }
+
+    private fun winner(characters: List<String>) = CharacterType.values().toList().map { it.name }.minus(characters).size == 1
 
     @JsonIgnore
     @DynamoDBAttribute(attributeName="player1")

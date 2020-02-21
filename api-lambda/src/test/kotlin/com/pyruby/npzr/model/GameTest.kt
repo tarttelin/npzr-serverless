@@ -232,6 +232,32 @@ class GameTest {
     }
 
     @Test
+    fun `When a player completes their last character stack then their play state changes to winner`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill")
+        val gameNearlyWon = initialGame.copy(players=initialGame.players.map {
+            if (it.userId == initialGame.activePlayer()?.userId)
+                initialGame.activePlayer()!!.copy(completed = listOf(CharacterType.Pirate.name, CharacterType.Zombie.name, CharacterType.Robot.name))
+            else
+                it
+        })
+        val activePlayer = gameNearlyWon.activePlayer()!!
+        activePlayer `should not be` null
+        val cardToPlay = activePlayer.hand.get(0)
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+        val stack = activePlayer.stacks[0].play(Card("123", BodyPart.Torso, CharacterType.Ninja), BodyPart.Torso)
+            .play(Card("323", BodyPart.Legs, CharacterType.Ninja), BodyPart.Legs)
+        val expectedGame = gameNearlyWon.copy(players = listOf(activePlayer.copy(stacks = listOf(stack)), gameNearlyWon.players.find { p -> p.userId != activePlayer.userId }!!))
+        val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+        updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
+        val originalPlayer = updatedGame.activePlayer()!!
+        originalPlayer.playState `should equal` PlayState.Winner
+        val opponentPlayer = updatedGame.players.find { it.userId != originalPlayer.userId }!!
+        opponentPlayer.playState `should equal` PlayState.Loser
+    }
+
+    @Test
     fun `When a player completes their own stack they score the completed character`() {
         val pendingGame = Game.createGame("bob", PlayerType.Player)
         val initialGame = pendingGame.join("bill")

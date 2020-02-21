@@ -4,5 +4,7 @@ enum class PlayState {
     Play,
     Move,
     MoveWild,
-    Wait
+    Wait,
+    Winner,
+    Loser
 }

@@ -16,7 +16,7 @@ export interface Player {
 
 export type PlayerType = "AI" | "Player";
 
-export type PlayState = "Play" | "Move" | "MoveThenPlay" | "Wait";
+export type PlayState = "Play" | "Move" | "MoveThenPlay" | "Wait" | "Winner" | "Loser";
 
 export type BodyPartType = "Head" | "Torso" | "Legs" | "Wild";
 
