@@ -6,8 +6,8 @@ import com.amazonaws.services.lambda.runtime.events.SQSEvent
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.pyruby.npzr.npc.model.Game
 import com.pyruby.npzr.npc.model.Player
-import com.pyruby.npzr.npc.model.Position
-import com.pyruby.npzr.npc.moves.MoveAnyCard
+import com.pyruby.npzr.npc.moves.MoveHighestScoreAnyCard
+import com.pyruby.npzr.npc.moves.MoveMatchingCharacterToExistingStack
 import com.pyruby.npzr.npc.plays.*
 
 
@@ -15,7 +15,7 @@ class NpcPlayerHandler(val playCard: PlayCardCall = GameGateway::makePlayCardReq
     private val logger by LoggerDelegate()
     val mapper = jacksonObjectMapper()
     private val plays = listOf(PlayToCompleteStack(), PlayCharacterWild(), PlayMatchingCharacterOnExistingStack(), PlayHighestScoreAnyCard())
-    private val moves = listOf(MoveAnyCard())
+    private val moves = listOf(PlayToCompleteStack(), MoveMatchingCharacterToExistingStack(),MoveHighestScoreAnyCard())
 
     override fun handleRequest(input: SQSEvent?, context: Context?) {
         input?.records?.forEach { action ->

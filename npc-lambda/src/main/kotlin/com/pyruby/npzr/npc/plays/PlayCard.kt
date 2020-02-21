@@ -39,6 +39,8 @@ interface PlayCard {
 
         fun firstEmpty(stacks: List<Stack>) = stacks.filter { s -> s.head.isEmpty() && s.torso.isEmpty() && s.legs.isEmpty()}.first()
 
+        fun cardsOnOpponentStacks(opponent: Player) = opponent.stacks.flatMap { s -> listOfNotNull(s.head.firstOrNull(), s.torso.firstOrNull(), s.legs.firstOrNull()) }
+
         private fun validPosition(card: Card, expectedPosition: Position) = card.bodyPart == expectedPosition || card.bodyPart == Position.Wild
 
     }

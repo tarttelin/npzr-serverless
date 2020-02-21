@@ -11,10 +11,6 @@ Resources:
           AttributeDataType: String
           Mutable: true
           Required: true
-        - Name: phone_number
-          AttributeDataType: String
-          Mutable: true
-          Required: true
   # Creates a User Pool Client to be used by the identity pool
   UserPoolClient:
     Type: "AWS::Cognito::UserPoolClient"

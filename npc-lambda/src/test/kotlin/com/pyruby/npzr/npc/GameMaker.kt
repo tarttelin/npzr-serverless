@@ -8,18 +8,18 @@ class GameMaker {
     private var _playerHand = listOf(card(), card(), card(), card(), card())
     var opponentHand = listOf(card(), card(), card(), card(), card())
     private var _playerStacks: List<Stack> = listOf(Stack("Stack", emptyList(), "10", emptyList(), emptyList()))
-    var opponentStacks: List<Stack> = listOf(Stack("Stack", emptyList(), "20", emptyList(), emptyList()))
+    private var _opponentStacks: List<Stack> = listOf(Stack("Stack", emptyList(), "20", emptyList(), emptyList()))
     var playerCompleted: List<Character> = emptyList()
     var opponentCompleted: List<Character> = emptyList()
     var discardPile: List<Card> = emptyList()
 
     fun readyToPlay() = Game("Game", discardPile, "123", listOf(
-            Player("Player", opponentCompleted, opponentHand, "Wait", "Player", opponentStacks, "Joe"),
+            Player("Player", opponentCompleted, opponentHand, "Wait", "Player", _opponentStacks, "Joe"),
             Player("Player", playerCompleted, _playerHand, "Play", "AI", _playerStacks, "Robot")
     ))
 
     fun readyToMove() = Game("Game", discardPile, "123", listOf(
-            Player("Player", opponentCompleted, opponentHand, "Wait", "Player", opponentStacks, "Joe"),
+            Player("Player", opponentCompleted, opponentHand, "Wait", "Player", _opponentStacks, "Joe"),
             Player("Player", playerCompleted, _playerHand, "Move", "AI", _playerStacks, "Robot")
     ))
 
@@ -29,7 +29,13 @@ class GameMaker {
         _playerStacks = stacks.toList().plus(Stack("Stack", emptyList(), "10", emptyList(), emptyList()))
     }
 
+    fun opponentStacks(vararg stacks: Stack) = apply {
+        _opponentStacks = stacks.toList().plus(Stack("Stack", emptyList(), "10", emptyList(), emptyList()))
+    }
+
     fun playerScore(vararg characters: Character) = apply { playerCompleted = characters.toList() }
+
+    fun opponentScore(vararg characters: Character) = apply { opponentCompleted = characters.toList() }
 
     companion object {
         private var stackCount = 1

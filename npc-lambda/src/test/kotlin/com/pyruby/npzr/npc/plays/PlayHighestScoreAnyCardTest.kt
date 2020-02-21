@@ -5,9 +5,7 @@ import com.pyruby.npzr.npc.GameMaker.Companion.card
 import com.pyruby.npzr.npc.GameMaker.Companion.stack
 import com.pyruby.npzr.npc.model.Character
 import com.pyruby.npzr.npc.model.Character.Ninja
-import com.pyruby.npzr.npc.model.Character.Robot
 import com.pyruby.npzr.npc.model.Position.Head
-import com.pyruby.npzr.npc.model.Position.Legs
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should not be equal to`

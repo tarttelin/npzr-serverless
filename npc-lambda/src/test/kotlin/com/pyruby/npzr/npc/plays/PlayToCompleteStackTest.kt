@@ -63,4 +63,37 @@ internal class PlayToCompleteStackTest {
         playToMake `should be` null
     }
 
+    @Test
+    fun `move card to complete character`() {
+        val expectedCard = card(Legs, Pirate)
+        val game = GameMaker()
+                .playerStacks(
+                        stack(head=card(WildPosition, Ninja), torso=card(Torso, Ninja)),
+                        stack(head=card(Head, Pirate), torso=card(Torso, Pirate))
+                )
+                .playerHand(card(WildPosition, Ninja), card(Torso, Robot))
+                .opponentStacks(stack(head=card(Head, Zombie)), stack(torso=card(Torso, Pirate), legs=expectedCard))
+                .readyToMove()
+        val strategy = PlayToCompleteStack()
+        val play = strategy.moveCard(game.players[1], game.players[0])!!
+        play.card `should be` expectedCard
+        play.stack `should be` game.players[1].stacks[1]
+        play.position.name `should be equal to` Legs.name
+    }
+
+    @Test
+    fun `no move suggested given no card to complete character`() {
+        val game = GameMaker()
+                .playerStacks(
+                        stack(head=card(WildPosition, Ninja), torso=card(Torso, Ninja)),
+                        stack(head=card(Head, Pirate), torso=card(Torso, Pirate))
+                )
+                .playerHand(card(WildPosition, Ninja), card(Torso, Robot))
+                .opponentStacks(stack(head=card(Head, Zombie)), stack(torso=card(Torso, Pirate)))
+                .readyToMove()
+        val strategy = PlayToCompleteStack()
+        val play = strategy.moveCard(game.players[1], game.players[0])
+        play `should be` null
+    }
+
 }
