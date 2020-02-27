@@ -9,6 +9,7 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be`
 import kotlin.test.Test
 import org.junit.jupiter.api.TestInstance
+import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PlayMatchingCharacterOnExistingStackTest {
@@ -66,5 +67,10 @@ class PlayMatchingCharacterOnExistingStackTest {
         val strategy = PlayMatchingCharacterOnExistingStack()
         val play = strategy.playCard(game.players[1], game.players[0])
         play `should be` null
+    }
+
+    @Test
+    fun `Does not play a second head on top of existing head when matching another body part of a character on a stack`() {
+        fail("Current bug")
     }
 }

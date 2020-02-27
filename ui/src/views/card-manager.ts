@@ -22,7 +22,7 @@ class CardManager {
         if (this.cards.has(card)) {
             return this.cards.get(card)!;
         }
-        let view = new CardView(20, 60, card, faceDown, mover);
+        let view = new CardView(20, 60, card, false, mover);
         this.cards.set(card, view);
         me.game.world.addChild(view, this.cards.size);
         return view;

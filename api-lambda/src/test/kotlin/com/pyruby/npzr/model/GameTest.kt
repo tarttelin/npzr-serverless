@@ -186,7 +186,7 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
         val opponent = initialGame.players.find { it.userId != activePlayer.userId }!!
-        val cardToPlay = activePlayer.hand.get(0)
+        val cardToPlay = activePlayer.hand[0]
         cardToPlay.bodyPart = BodyPart.Head
         cardToPlay.characterType = CharacterType.Ninja
         val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, opponent.stacks[0].id, BodyPart.Head)
@@ -237,7 +237,7 @@ class GameTest {
         val initialGame = pendingGame.join("bill")
         val gameNearlyWon = initialGame.copy(players=initialGame.players.map {
             if (it.userId == initialGame.activePlayer()?.userId)
-                initialGame.activePlayer()!!.copy(completed = listOf(CharacterType.Pirate.name, CharacterType.Zombie.name, CharacterType.Robot.name))
+                initialGame.activePlayer()!!.copy(completed = listOf(CharacterType.Pirate, CharacterType.Zombie, CharacterType.Robot))
             else
                 it
         })
@@ -274,8 +274,8 @@ class GameTest {
         val originalPlayer = updatedGame.players.find { p -> p.userId == activePlayer.userId }!!
         originalPlayer.stacks[0].head.size `should equal` 0
         updatedGame.discardPile.size `should equal` 3
-        originalPlayer.completed `should equal` listOf(CharacterType.Ninja.name)
-        originalPlayer.stacks.size `should equal` 2
+        originalPlayer.completed `should equal` listOf(CharacterType.Ninja)
+        originalPlayer.stacks.size `should equal` 1
         originalPlayer.playState `should equal` PlayState.Move
     }
 
@@ -316,11 +316,11 @@ class GameTest {
         updatedGame.activePlayer()?.userId `should equal` activePlayer.userId
         val originalOpponent = updatedGame.players.find { p -> p.userId != activePlayer.userId }!!
         originalOpponent.stacks[0].head.size `should equal` 0
-        originalOpponent.completed `should equal` listOf(CharacterType.Ninja.name)
+        originalOpponent.completed `should equal` listOf(CharacterType.Ninja)
     }
 
     @Test
-    fun `When a player plays a wild card as the last card in their hand and doesn't complete a stack it is the opponent's turn`() {
+    fun `When a player plays a wild card as the last card in their hand and does not complete a stack it is the opponent's turn`() {
         val pendingGame = Game.createGame("bob", PlayerType.Player)
         val initialGame = pendingGame.join("bill")
         val activePlayer = initialGame.activePlayer()!!
@@ -332,5 +332,21 @@ class GameTest {
         val updatedGame = expectedGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
         updatedGame.activePlayer()?.userId `should equal` opponentPlayer.userId
         updatedGame.activePlayer()?.playState `should equal` PlayState.Play
+    }
+
+    @Test
+    fun `When the last card is drawn from the deck, the discard pile is shuffled and becomes the deck`() {
+        val pendingGame = Game.createGame("bob", PlayerType.Player)
+        val initialGame = pendingGame.join("bill").copy(discardPile = pendingGame.deck, deck = emptyList())
+        val activePlayer = initialGame.activePlayer()!!
+        activePlayer `should not be` null
+        val cardToPlay = activePlayer.hand.get(0)
+        cardToPlay.bodyPart = BodyPart.Head
+        cardToPlay.characterType = CharacterType.Ninja
+
+        val updatedGame = initialGame.playCard(activePlayer.userId!!, cardToPlay.id!!, activePlayer.stacks[0].id, BodyPart.Head)
+
+        updatedGame.deck.isEmpty() `should not be` true
+        updatedGame.players.find { it.userId == activePlayer.userId }?.playState `should equal` PlayState.Wait
     }
 }

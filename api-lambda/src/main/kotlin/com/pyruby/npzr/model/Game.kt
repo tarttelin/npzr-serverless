@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.pyruby.npzr.PlayException
+import com.pyruby.npzr.playstep.StartPlay
 import kotlin.random.Random
 
 @DynamoDBTable(tableName="Game")
@@ -34,109 +35,23 @@ data class Game(
         }
     }
 
-    fun playCard(username: String, cardId: String, stackId: String, position: BodyPart): Game {
+    fun currentPlayer(username: String): StartPlay {
         val player = activePlayer() ?: throw PlayException("No active player")
         if (player.userId != username) throw PlayException("It is not your play phase")
-        val cardToPlay = if (player.playState == PlayState.Play) {
-            activePlayer()?.hand?.find { card -> card.id == cardId } ?:
-            throw PlayException("Card not in your hand")
-        } else {
-            if (activePlayer()?.playState !in listOf(PlayState.Move, PlayState.MoveWild)) throw PlayException("Not your turn to move a card")
-            players.flatMap { it.stacks }
-                    .flatMap { listOf(it.head.firstOrNull(), it.torso.firstOrNull(), it.legs.firstOrNull())}
-                    .firstOrNull { it?.id == cardId } ?:
-            throw PlayException("Cannot locate card on top of a stack")
-        }
-        val targetStack = players.flatMap { it.stacks }.find { it.id == stackId } ?: throw PlayException("Unknown stack")
-        val updatedStack = targetStack.play(cardToPlay, position)
-
-        val (scoredPlayer, discards) = PlayerScore.completeStacks(player.copy(
-                hand=player.hand.filter{ it.id != cardId },
-                stacks = updateStacks(player.stacks, updatedStack, cardToPlay)
-        ))
-        val opponent = players.find { it.userId != username }!!
-        val (scoredOpponent, opponentDiscards) = PlayerScore.completeStacks(opponent.copy(
-                stacks = updateStacks(opponent.stacks, updatedStack, cardToPlay)))
-
-        val hasCompletedStack = !discards.plus(opponentDiscards).isEmpty()
-        val playerStateUpdate = updatePlayerState(scoredPlayer, scoredOpponent, hasCompletedStack, cardToPlay.isWild())
-        val opponentStateUpdate = updatePlayerState(scoredOpponent, scoredPlayer, hasCompletedStack, playerStateUpdate.playState != PlayState.Wait)
-
-        return this.copy(
-                deck = if (opponentStateUpdate.playState == PlayState.Play) deck.subList(1, deck.size) else deck,
-                discardPile = discardPile.plus(discards).plus(opponentDiscards),
-                players = players.map { p -> if (p.userId == username) playerStateUpdate else opponentStateUpdate }
-        )
+        return StartPlay(this, activePlayer()!!, this.players.find { it.userId != username}!!)
     }
 
-    private fun updatePlayerState(player: Player, opponent: Player, hasCompletedStack: Boolean, wild: Boolean): Player {
-        return when(player.playState) {
-            PlayState.Wait ->
-                if (winner(player.completed))
-                    player.copy(playState = PlayState.Winner)
-                else if (winner(opponent.completed))
-                    player.copy(playState = PlayState.Loser)
-                else if (hasCompletedStack || wild)
-                    player
-                else
-                    player.copy(playState = PlayState.Play, hand = player.hand.plus(deck.first()))
-            PlayState.Move ->
-                if (winner(player.completed))
-                    player.copy(playState = PlayState.Winner)
-                else if (winner(opponent.completed))
-                    player.copy(playState = PlayState.Loser)
-                else if (hasCompletedStack)
-                    player
-                else
-                    player.copy(playState = PlayState.Wait)
-            PlayState.MoveWild ->
-                if (winner(player.completed))
-                    player.copy(playState = PlayState.Winner)
-                else if (winner(opponent.completed))
-                    player.copy(playState = PlayState.Loser)
-                else if (hasCompletedStack) player
-                else if (player.hand.isNotEmpty()) player.copy(playState = PlayState.Play)
-                else player.copy(playState = PlayState.Wait)
-            PlayState.Play ->
-                if (winner(player.completed))
-                    player.copy(playState = PlayState.Winner)
-                else if (winner(opponent.completed))
-                    player.copy(playState = PlayState.Loser)
-                else if (hasCompletedStack && wild)
-                    player.copy(playState = PlayState.MoveWild)
-                else if (hasCompletedStack)
-                    player.copy(playState = PlayState.Move)
-                else if (wild && player.hand.isNotEmpty())
-                    player
-                else
-                    player.copy(playState = PlayState.Wait)
-            PlayState.Loser -> player
-            PlayState.Winner -> player
-        }
-    }
-
-    private fun updateStacks(stacks: List<Stack>, updatedStack: Stack, playedCard: Card): List<Stack> {
-        val replacedStacks = stacks.map { stack -> if (stack.id == updatedStack.id) updatedStack else stack }
-        val updatedStacks = if (replacedStacks.any { s -> s.head.isEmpty() && s.torso.isEmpty() && s.legs.isEmpty() }) {
-            replacedStacks
-        } else {
-            replacedStacks.plus(Stack())
-        }
-        return updatedStacks.map {
-            if (it.id == updatedStack.id) {
-                it
-            } else {
-                it.copy(
-                    head = it.head.filter { c -> c.id != playedCard.id },
-                    torso = it.torso.filter { c -> c.id != playedCard.id },
-                    legs = it.legs.filter { c -> c.id != playedCard.id }
-            )}
-        }
-    }
+    fun playCard(username: String, cardId: String, stackId: String, position: BodyPart) =
+        currentPlayer(username)
+                .playCard(cardId)
+                .onStackSlot(stackId, position)
+                .scoreCompletedStacks()
+                .updatePlayState()
+                .dealNextCard()
+                .ensurePlayersHaveAnEmptyStack()
+                .game
 
     fun activePlayer(): Player? = players.find { p -> p.playState != PlayState.Wait }
-
-    private fun winner(characters: List<String>) = CharacterType.values().toList().map { it.name }.minus(characters).size == 1
 
     @JsonIgnore
     @DynamoDBAttribute(attributeName="player1")
@@ -164,3 +79,4 @@ data class Game(
         }
     }
 }
+
